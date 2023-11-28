@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="來源檔案">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="標頭檔">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="資源檔">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="標頭檔\ImGui">
+      <UniqueIdentifier>{1bc72562-90ce-400d-9e12-4984894ab63f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="資源檔\ImGui">
+      <UniqueIdentifier>{f12da39e-63a2-4fd7-9178-65d3b96ee516}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="資源檔\Shaders">
+      <UniqueIdentifier>{9451df46-0966-4c68-9064-84ca2398d1be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Border.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Checkpoint.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Pedestrian.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapper.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="SocialForce.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imconfig.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imgui.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imgui_impl_glfw.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imgui_impl_opengl3.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imgui_internal.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imstb_rectpack.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imstb_textedit.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\imgui\imstb_truetype.h">
+      <Filter>標頭檔\ImGui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Application_Event.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Border.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Pedestrian.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapper.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="SocialForce.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_widgets.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_tables.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_impl_opengl3.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_impl_glfw.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_draw.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui_demo.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\imgui\imgui.cpp">
+      <Filter>資源檔\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\OpenGL\include\glad\glad.c">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\directionLightShadowMap.fs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+    <None Include="Shaders\directionLightShadowMap.vs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+    <None Include="Shaders\main.fs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+    <None Include="Shaders\main.vs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+    <None Include="Shaders\plane.fs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+    <None Include="Shaders\plane.vs">
+      <Filter>資源檔\Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
