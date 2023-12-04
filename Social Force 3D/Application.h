@@ -16,6 +16,7 @@
 #include "Camera.h"
 #include "SocialForce.h"
 #include "Model.h"
+#include "Animator.h"
 #include "Plane.h"
 #include "Utils.h"
 
@@ -50,6 +51,8 @@ private:
 
 	glm::vec3 m_directionLightDirection = glm::vec3(0.0, -1.0, -1.0);
 	bool m_directionLightShadowFlag = false;
+
+	bool m_walkFlag = false;
 
 	// Setup
 	bool Setup();

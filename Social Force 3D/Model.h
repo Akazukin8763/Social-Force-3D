@@ -3,12 +3,15 @@
 
 #include <glad/glad.h>
 
-#include <stb_image.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "Shader.h"
 #include "Vertex.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Animdata.h"
 #include "Utils.h"
 
 #include <regex>
@@ -22,32 +25,78 @@ class Model {
 private:
 	std::string m_directory;
 
-	void ReadMtlFile(std::string filepath);
-	void ReadObjFile(std::string filepath);
-	unsigned int LoadTextureFile(std::string filename);
+	// Model Loading
+	void LoadModel(std::string const &path);
+	
+	void ProcessNode(aiNode *node, const aiScene *scene);
+	Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene);
+	std::vector<Texture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene* scene);
+	
+	// Model Animation
+	void SetVertexBoneDataToDefault(Vertex& vertex);
+	void SetVertexBoneData(Vertex& vertex, int boneID, float weight);
+	void ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
 
 	//
+	bool m_animationFlag = false;
+	std::map<std::string, BoneInfo> m_boneInfoMap;
+	int m_boneCounter = 0;
+	std::vector<glm::mat4> m_boneMatrices;
+
 	glm::mat4 m_modelMatrix = Matrix4::identity;
 
 	bool m_shadowFlag = false;
 
 public:
-	std::vector<Mesh> m_meshes;
-	std::map<std::string, Texture> m_textures;
+	std::vector<Mesh>    m_meshes;
+	std::vector<Texture> m_textures_loaded;
 
+	bool m_gammaCorrection;
+
+	// Constructor
 	Model() = default;
-	Model(std::string filepath);
-	
+	Model(std::string const &path, bool gamma = false);
+
+	void SetAnimation(bool value) { m_animationFlag = value; }
+	bool GetAnimation() { return m_animationFlag; }
+
+	auto& GetBoneInfoMap() { return m_boneInfoMap; }
+	int& GetBoneCount() { return m_boneCounter; }
+
 	void SetModelMatrix(glm::mat4 modelMatrix) { m_modelMatrix = modelMatrix; }
 	glm::mat4 GetModelMatrix() { return m_modelMatrix; }
 
 	void SetShadow(bool value) { m_shadowFlag = value; }
 	bool GetShadow() { return m_shadowFlag; }
+    
+	// Render the model
+	void Render(Shader &shader) {
+		// Setup Animations
+		shader.SetBool("useAnimation", m_animationFlag);
+		for (int i = 0; i < m_boneMatrices.size(); ++i) {
+			std::string index = std::to_string(i);
+			shader.SetMat4("FinalBonesMatrices[" + index + "]", m_boneMatrices[i]);
+		}
+		
+		// Render the meshes
+		for (unsigned int i = 0; i < m_meshes.size(); i++)
+			m_meshes[i].Render(shader);
+	}
 
-	void UpdateInstanceDatas(std::vector<InstanceData> instances);
-	void UpdateShadowMaps(std::vector<GLuint> shadowMaps);
+	void UpdateBonesMatrices(std::vector<glm::mat4> boneMatrices) {
+		m_boneMatrices = boneMatrices;
+	}
 
-	void Render(Shader &shader);
+	void UpdateInstanceDatas(std::vector<InstanceData> instances) {
+		for (unsigned int i = 0; i < m_meshes.size(); i++)
+			m_meshes[i].UpdateInstanceDatas(instances);
+	}
+
+	void UpdateShadowMaps(std::vector<GLuint> shadowMaps) {
+		for (unsigned int i = 0; i < m_meshes.size(); i++)
+			m_meshes[i].UpdateShadowMaps(shadowMaps);
+	}
+
 };
 
 #endif

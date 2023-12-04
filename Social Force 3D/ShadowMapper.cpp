@@ -19,17 +19,17 @@ void ShadowMapper::Setup() {
 	const float clampColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	// Create Shadow Map
-	DirectionLightShadowMapFBO = std::vector<GLuint>(CASCADES_NUMS);
-	DirectionLightShadowMap = std::vector<GLuint>(CASCADES_NUMS);
-	DirectionLghtSpaceMatrix = std::vector<glm::mat4>(CASCADES_NUMS);
+	DirectionLightShadowMapFBO = std::vector<GLuint>(MAX_DIRECTION_NUMS);
+	DirectionLightShadowMaps = std::vector<GLuint>(MAX_DIRECTION_NUMS);
+	DirectionLghtSpaceMatrices = std::vector<glm::mat4>(MAX_DIRECTION_NUMS);
 	 
-	for (int i = 0; i < CASCADES_NUMS; i++) {
+	for (int i = 0; i < MAX_DIRECTION_NUMS; i++) {
 		// Framebuffer for Shadow Map
 		glGenFramebuffers(1, &DirectionLightShadowMapFBO[i]);
 
 		// Texture for Shadow Map FBO
-		glGenTextures(1, &DirectionLightShadowMap[i]);
-		glBindTexture(GL_TEXTURE_2D, DirectionLightShadowMap[i]);
+		glGenTextures(1, &DirectionLightShadowMaps[i]);
+		glBindTexture(GL_TEXTURE_2D, DirectionLightShadowMaps[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
 					 m_shadowMapWidth, m_shadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -39,7 +39,7 @@ void ShadowMapper::Setup() {
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor); // Prevents darkness outside the frustrum
 
 		glBindFramebuffer(GL_FRAMEBUFFER, DirectionLightShadowMapFBO[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DirectionLightShadowMap[i], 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DirectionLightShadowMaps[i], 0);
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -63,17 +63,17 @@ void ShadowMapper::RenderDirectionLightShadowMap(glm::vec3 direction, std::vecto
 	glEnable(GL_DEPTH_TEST);
 	glViewport(0, 0, m_shadowMapWidth, m_shadowMapHeight);
 
-	for (int i = 0; i < CASCADES_NUMS; i++) {
+	for (int i = 0; i < m_directionLightNums; i++) {
 		//float ratio = static_cast<float>(i + 1) / CASCADES_NUMS;
-        //float near = ratio * (m_farPlane - m_nearPlane) + m_nearPlane;
-        //float far = (ratio + 1.0f) * (m_farPlane - m_nearPlane) + m_nearPlane;
-        float near = m_nearPlane;
-        float far = m_farPlane;
+		//float near = ratio * (m_farPlane - m_nearPlane) + m_nearPlane;
+		//float far = (ratio + 1.0f) * (m_farPlane - m_nearPlane) + m_nearPlane;
+		float near = m_nearPlane;
+		float far = m_farPlane;
 
 		glm::vec3 lightPosition = -direction * 10.0f;
 		glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -10.0f, 10.0f, near, far);
 		glm::mat4 lightView = glm::lookAt(lightPosition, Vector3::zero, Vector3::up);
-		DirectionLghtSpaceMatrix[i] = lightProjection * lightView;
+		DirectionLghtSpaceMatrices[i] = lightProjection * lightView;
 
 		// Render Shadow Map
 		m_shadowShader.Activate();
@@ -81,7 +81,7 @@ void ShadowMapper::RenderDirectionLightShadowMap(glm::vec3 direction, std::vecto
 		glBindFramebuffer(GL_FRAMEBUFFER, DirectionLightShadowMapFBO[i]);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		m_shadowShader.SetMat4("LightSpaceMatrix", DirectionLghtSpaceMatrix[i]);
+		m_shadowShader.SetMat4("LightSpaceMatrix", DirectionLghtSpaceMatrices[i]);
 		for (Model* model : models) {
 			if (!model->GetShadow()) continue;
 

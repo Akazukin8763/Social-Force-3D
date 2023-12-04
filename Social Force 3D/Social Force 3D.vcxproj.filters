@@ -93,6 +93,18 @@
     <ClInclude Include="Libraries\imgui\imstb_truetype.h">
       <Filter>標頭檔\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Animdata.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -154,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="Libraries\OpenGL\include\glad\glad.c">
       <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

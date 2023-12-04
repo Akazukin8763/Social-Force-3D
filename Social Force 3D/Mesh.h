@@ -12,22 +12,29 @@
 
 class Mesh {
 private:
-	unsigned int VAO, VBO, InstanceVBO;
-	std::vector<InstanceData> m_instances;
-	std::vector<GLuint> m_shadowMaps;
+    unsigned int VAO, VBO, EBO;
 
-	void Setup();
+    unsigned int InstanceVBO;
+    std::vector<InstanceData> m_instances;
+    std::vector<GLuint> m_shadowMaps;
+
+    void Setup();
 
 public:
-	std::vector<Vertex> m_vertices;
-	Texture m_texture;
+    std::vector<Vertex>       m_vertices;
+    std::vector<unsigned int> m_indices;
+    std::vector<Texture>      m_textures;
 
-	Mesh(std::vector<Vertex> vertices, Texture texture);
+    // Constructor
+    Mesh() = default;
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 
-	void UpdateInstanceDatas(std::vector<InstanceData> instances) { m_instances = instances; }
-	void UpdateShadowMaps(std::vector<GLuint> shadowMaps) { m_shadowMaps = shadowMaps; }
+    // Render the mesh
+    void Render(Shader &shader);
 
-	void Render(Shader &shader);
+    void UpdateInstanceDatas(std::vector<InstanceData> instances) { m_instances = instances; }
+    void UpdateShadowMaps(std::vector<GLuint> shadowMaps) { m_shadowMaps = shadowMaps; }
+
 };
 
 #endif

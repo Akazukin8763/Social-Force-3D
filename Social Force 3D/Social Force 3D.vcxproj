@@ -88,13 +88,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>./Libraries/glm; ./Libraries/imgui; ./Libraries/OpenGL/include; ./Libraries/stb</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Libraries;./Libraries/glm;./Libraries/imgui;./Libraries/OpenGL/include;./Libraries/stb</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./Libraries/OpenGL/libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>./Libraries/assimp/libs;./Libraries/OpenGL/libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,7 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
+    <ClInclude Include="Animdata.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="Border.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Checkpoint.h" />
@@ -186,6 +190,7 @@
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ShadowMapper.cpp" />
     <ClCompile Include="SocialForce.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,7 @@
 #include "Utils.h"
 
+const glm::vec2 Vector2::zero = glm::vec2(0, 0);
+
 const glm::vec3 Vector3::zero = glm::vec3(0, 0, 0);
 const glm::vec3 Vector3::ones = glm::vec3(1, 1, 1);
 const glm::vec3 Vector3::forward = glm::vec3(0, 0, 1);

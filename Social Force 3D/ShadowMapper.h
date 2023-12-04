@@ -20,8 +20,10 @@ private:
 	Shader m_shadowShader;
 
 	std::vector<GLuint> DirectionLightShadowMapFBO;
-	std::vector<GLuint> DirectionLightShadowMap;
-	std::vector<glm::mat4> DirectionLghtSpaceMatrix;
+	std::vector<GLuint> DirectionLightShadowMaps;
+	std::vector<glm::mat4> DirectionLghtSpaceMatrices;
+
+	int m_directionLightNums = 1;
 
 public:
 	ShadowMapper() = default;
@@ -36,8 +38,9 @@ public:
 
 	void RenderDirectionLightShadowMap(glm::vec3 direction, std::vector<Model*> models);
 
-	std::vector<glm::mat4> GetDirectionLightSpaceMatrix() { return DirectionLghtSpaceMatrix; }
-	std::vector<GLuint> GetDirectionLightShadowMap() { return DirectionLightShadowMap; }
+	std::vector<glm::mat4> GetDirectionLightSpaceMatrices() { return DirectionLghtSpaceMatrices; }
+	std::vector<GLuint> GetDirectionLightShadowMaps() { return DirectionLightShadowMaps; }
+	int GetDirectionLightNums() { return m_directionLightNums; }
 
 };
 

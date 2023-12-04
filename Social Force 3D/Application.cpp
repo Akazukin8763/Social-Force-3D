@@ -26,7 +26,7 @@ bool Application::Setup() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create GLFW window
-    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "Final Project", NULL, NULL);
+    m_window = glfwCreateWindow(m_screenWidth, m_screenHeight, "Social Force 3D", NULL, NULL);
     if (m_window == NULL) {
         std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -68,19 +68,30 @@ void Application::Rendering() {
 
     m_socialForce = SocialForce();
 
-    //m_pedestrianModel = Model("./Models/Hibiki/Hibiki.obj");
-    m_pedestrianModel = Model("./Models/sphere/sphere.obj");
-    m_pedestrianModel.SetModelMatrix(glm::translate(Matrix4::identity, Vector3::up * 0.5f));
+    // Pedestrain
+    m_pedestrianModel = Model("./Models/Ch33_nonPBR/Ch33_nonPBR.dae");
+    m_pedestrianModel.SetAnimation(true);
+    m_pedestrianModel.SetModelMatrix(Matrix4::identity);
     m_pedestrianModel.SetShadow(true);
 
+    Animation idleAnimation("./Models/Ch33_nonPBR/Idle.dae", &m_pedestrianModel);
+    Animation walkAnimation("./Models/Ch33_nonPBR/Walking.dae", &m_pedestrianModel);
+    Animator animator(&idleAnimation);
+    animator.UpdateAnimation(0);
+    m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+
+    // Border
     m_borderModel = Model("./Models/cube/cube.obj");
+    m_borderModel.SetAnimation(false);
     m_borderModel.SetModelMatrix(glm::translate(Matrix4::identity, Vector3::up * 0.5f));
     m_borderModel.SetShadow(true);
 
+    // Ground
     Model tempGroundModel = Model("./Models/cube/cube.obj");
+    tempGroundModel.SetAnimation(false);
     tempGroundModel.SetModelMatrix(Matrix4::identity);
-    tempGroundModel.UpdateInstanceDatas(std::vector<InstanceData> { InstanceData { glm::scale(Matrix4::identity, glm::vec3(40, 0.1, 20)) } });
     tempGroundModel.SetShadow(true);
+    tempGroundModel.UpdateInstanceDatas(std::vector<InstanceData> { InstanceData { glm::scale(Matrix4::identity, glm::vec3(40, 0.1, 20)) } });
 
     m_plane = Plane(25);
 
@@ -96,8 +107,6 @@ void Application::Rendering() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //IsMouseOnGui = io.WantCaptureMouse;
-
         glEnable(GL_DEPTH_TEST); // Enable depth test
 
         glEnable(GL_BLEND); // Enable blending mode
@@ -111,8 +120,14 @@ void Application::Rendering() {
         m_deltaTime = m_currentTime - m_lastTime;
         m_lastTime = m_currentTime;
 
-        if (m_simulateFlag)
-            m_socialForce.Simulate(m_deltaTime); // Simulate
+        if (m_simulateFlag) {
+            // Simulate social force
+            m_socialForce.Simulate(m_deltaTime);
+
+            // Animations
+            animator.UpdateAnimation(m_deltaTime);
+            m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+        }
         m_pedestrianModel.UpdateInstanceDatas(m_socialForce.GetPedestrianInstances());
         m_borderModel.UpdateInstanceDatas(m_socialForce.GetBorderInstances());
 
@@ -129,8 +144,8 @@ void Application::Rendering() {
         /*
          *  Model Settings
          */ 
-        // Shadow
-        if (m_directionLightShadowFlag) m_shadowMapper.RenderDirectionLightShadowMap(m_directionLightDirection, ptr_models);
+        if (m_directionLightShadowFlag) // it contains shader inside, so do not change this line's order
+            m_shadowMapper.RenderDirectionLightShadowMap(m_directionLightDirection, ptr_models);
 
         // Shader Settings
         m_mainShader.Activate(); // Activate Shader
@@ -148,23 +163,23 @@ void Application::Rendering() {
         m_mainShader.SetMat4("ViewMatrix", view);
         //m_mainShader.SetMat4("ModelMatrix", Matrix4::identity); // Global Coordinate
 
-        // Setup Shadow Map
+        // Setup Shadow Maps
         if (m_directionLightShadowFlag) {
-            std::vector<glm::mat4> lightMatrices = m_shadowMapper.GetDirectionLightSpaceMatrix();
-            std::vector<GLuint> shadowMaps = m_shadowMapper.GetDirectionLightShadowMap();
+            std::vector<glm::mat4> lightMatrices = m_shadowMapper.GetDirectionLightSpaceMatrices();
+            std::vector<GLuint> shadowMaps = m_shadowMapper.GetDirectionLightShadowMaps();
+            int lightNums = m_shadowMapper.GetDirectionLightNums();
 
-            m_mainShader.SetInt("DirectionLightSpaceMatrixNums", CASCADES_NUMS);
-            m_mainShader.SetInt("DirectionLightShadowMapNums", CASCADES_NUMS);
-            for (int i = 0; i < CASCADES_NUMS; i++) {
+            m_mainShader.SetInt("DirectionLightNums", lightNums);
+            for (int i = 0; i < lightNums; i++) {
                 std::string index = std::to_string(i);
-                m_mainShader.SetMat4("DirectionLightSpaceMatrix[" + index + "]", lightMatrices[i]);
-                m_mainShader.SetInt("DirectionLightShadowMap[" + index + "]", shadowMaps[i]);
+                m_mainShader.SetMat4("DirectionLightSpaceMatrices[" + index + "]", lightMatrices[i]);
+                m_mainShader.SetInt("DirectionLightShadowMaps[" + index + "]", shadowMaps[i]);
             }
 
             for (Model* model : ptr_models)
                 model->UpdateShadowMaps(shadowMaps);
         }
-        
+
         // Render
         for (Model* model : ptr_models) {
             m_mainShader.SetMat4("ModelMatrix", model->GetModelMatrix()); // Local Coordinate
@@ -220,6 +235,16 @@ void Application::Rendering() {
                 m_directionLightDirection = glm::normalize(m_directionLightDirection);
             }
             ImGui::Checkbox("Direction Light Shadow", &m_directionLightShadowFlag);
+
+            ImGui::Separator();
+
+            // Animation
+            if (ImGui::Checkbox("Walking Animation", &m_walkFlag)) {
+                if (m_walkFlag)
+                    animator.PlayAnimation(&walkAnimation);
+                else
+                    animator.PlayAnimation(&idleAnimation);
+            }
 
             ImGui::End();
         }

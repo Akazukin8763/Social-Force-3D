@@ -1,205 +1,229 @@
 #include "Model.h"
 
-Model::Model(std::string filepath) {
-	m_directory = filepath.substr(0, filepath.find_last_of('/') + 1);
+Model::Model(std::string const &path, bool gamma)  {
+	m_gammaCorrection = gamma;
 
-	ReadObjFile(filepath);
+	LoadModel(path);
 }
 
-void Model::ReadObjFile(std::string filepath) {
-	std::stringstream ss;
-	std::ifstream in_file(filepath);
-	std::string line = "";
-	std::string prefix = "";
+/*
+ *  Model Loading
+ */
+void Model::LoadModel(std::string const &path) {
+	unsigned int assimp_read_flag = aiProcess_Triangulate |
+		aiProcess_SortByPType |
+		aiProcess_GenUVCoords |
+		aiProcess_OptimizeMeshes |
+		aiProcess_ValidateDataStructure |
+		aiProcess_GenNormals |
+		aiProcess_CalcTangentSpace |
+		aiProcess_LimitBoneWeights |
+		aiProcess_JoinIdenticalVertices|
+		aiProcess_FlipWindingOrder;
 
-	if (!in_file.is_open()) {
-		throw "Could not open the file.";
+	assimp_read_flag = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
+
+	// read file via ASSIMP
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, assimp_read_flag);
+
+	// Check for errors
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
+		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << "\n";
+		return;
 	}
 
-	std::string mtlFileName;
-	std::string currentMtlName;
+	// Retrieve the directory path of the filepath
+	m_directory = path.substr(0, path.find_last_of('/'));
 
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec2> texCoords;
-	std::vector<glm::vec3> normals;
-	
-	bool firstload = true;
+	// Process ASSIMP's root node recursively
+	ProcessNode(scene->mRootNode, scene);
+}
 
-	unsigned int tempUint;
-	Vertex tempVertex;
+void Model::ProcessNode(aiNode *node, const aiScene *scene) {
+	// Process each mesh located at the current node
+	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		m_meshes.push_back(ProcessMesh(mesh, scene));
+	}
 
+	// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		ProcessNode(node->mChildren[i], scene);
+	}
+}
+
+Mesh Model::ProcessMesh(aiMesh *mesh, const aiScene *scene) {
 	std::vector<Vertex> vertices;
-	
-	while (std::getline(in_file, line)) {
-		auto iter =  std::find_if(line.rbegin() , line.rend() , [](char ch){ return !std::isspace<char>(ch , std::locale::classic()); });
-		line.erase(iter.base(), line.end()); // Remove only trailing spaces
-
-		ss.clear();
-		ss.str(line);
-		ss >> prefix;
-
-		if (prefix == "mtllib") {
-			ss.ignore(1); // skip space
-			std::getline(ss, mtlFileName);
-
-			// Load material
-			ReadMtlFile(m_directory + mtlFileName);
-		}
-		else if (prefix == "usemtl") {
-			if (!firstload) {
-				m_meshes.push_back(Mesh(vertices, m_textures[currentMtlName]));
-				vertices.clear(); // Clear vertices for next mesh
-			}
-			firstload = false;
-
-			ss >> currentMtlName;
-		}
-		else if (prefix == "v") { // Vertex Position
-			ss >> tempVertex.position.x >> tempVertex.position.y >> tempVertex.position.z;
-			positions.push_back(tempVertex.position);
-		}
-		else if (prefix == "vt") { // Vertex Texture Coordinate
-			ss >> tempVertex.texCoord.x >> tempVertex.texCoord.y;
-			texCoords.push_back(tempVertex.texCoord);
-		}
-		else if (prefix == "vn") { // Vertex Normal
-			ss >> tempVertex.normal.x >> tempVertex.normal.y >> tempVertex.normal.z;
-			normals.push_back(tempVertex.normal);
-		}
-		else if (prefix == "f") { // Face
-			std::vector<Vertex> face;
-
-			while (!ss.eof()) {
-				ss >> tempUint;
-				ss.ignore(1); // skip slash
-				tempVertex.position = positions[tempUint - 1];
-
-				ss >> tempUint;
-				ss.ignore(1); // skip slash
-				tempVertex.texCoord = texCoords[tempUint - 1];
-
-				ss >> tempUint;
-				ss.ignore(1); // skip space
-				tempVertex.normal = normals[tempUint - 1];
-
-				face.push_back(tempVertex);
-			}
-
-			if (face.size() == 3) {
-				vertices.push_back(face[0]);
-				vertices.push_back(face[1]);
-				vertices.push_back(face[2]);
-			}
-			else if (face.size() == 4) {
-				vertices.push_back(face[0]);
-				vertices.push_back(face[1]);
-				vertices.push_back(face[2]);
-				vertices.push_back(face[2]);
-				vertices.push_back(face[3]);
-				vertices.push_back(face[0]);
-			}
-		}
-	}
-
-	m_meshes.push_back(Mesh(vertices, m_textures[currentMtlName]));
-}
-
-void Model::ReadMtlFile(std::string filepath) {
-	std::stringstream ss;
-	std::ifstream in_file(filepath);
-	std::string line = "";
-	std::string prefix = "";
-
-	if (!in_file.is_open()) {
-		throw "Could not open the file.";
-	}
-
-	std::string currentMtlName;
+	std::vector<unsigned int> indices;
+	std::vector<Texture> textures;
 
 	glm::vec3 tempVec3;
-	std::string tempString;
-	float tempFloat;
+	glm::vec2 tempVec2;
 
-	while (std::getline(in_file, line)) {
-		ss.clear();
-		ss.str(line);
-		ss >> prefix;
+	// Walk through the vertices
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		Vertex vertex;
+		SetVertexBoneDataToDefault(vertex);
 
-		if (prefix == "newmtl") {
-			ss >> currentMtlName;
-			m_textures[currentMtlName] = Texture();
+		// Positions
+		tempVec3.x = mesh->mVertices[i].x;
+		tempVec3.y = mesh->mVertices[i].y;
+		tempVec3.z = mesh->mVertices[i].z;
+		vertex.Position = tempVec3;
+
+		// Normals
+		if (mesh->HasNormals()) {
+			tempVec3.x = mesh->mNormals[i].x;
+			tempVec3.y = mesh->mNormals[i].y;
+			tempVec3.z = mesh->mNormals[i].z;
+			vertex.Normal = tempVec3;
 		}
-		else if (prefix == "Ka") { // Ambient
-			ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
-			m_textures[currentMtlName].Ka = tempVec3;
+
+		// Texture Coordinates
+		if (mesh->mTextureCoords[0]) {
+			// Texture Coordinate
+			tempVec2.x = mesh->mTextureCoords[0][i].x; 
+			tempVec2.y = mesh->mTextureCoords[0][i].y;
+			vertex.TexCoord = tempVec2;
+
+			// Tangent
+			tempVec3.x = mesh->mTangents[i].x;
+			tempVec3.y = mesh->mTangents[i].y;
+			tempVec3.z = mesh->mTangents[i].z;
+			vertex.Tangent = tempVec3;
+
+			// Bitangent
+			tempVec3.x = mesh->mBitangents[i].x;
+			tempVec3.y = mesh->mBitangents[i].y;
+			tempVec3.z = mesh->mBitangents[i].z;
+			vertex.Bitangent = tempVec3;
 		}
-		else if (prefix == "Kd") { // Diffuse
-			ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
-			m_textures[currentMtlName].Kd = tempVec3;
+		else
+			vertex.TexCoord = Vector2::zero;
+
+		vertices.push_back(vertex);
+	}
+
+	// Walk through the mesh's face to get the vertex indicess
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+		aiFace face = mesh->mFaces[i];
+
+		for(unsigned int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);        
+	}
+	
+	// Materials
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+	// 1. ambient maps
+	std::vector<Texture> ambientMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "textures.ambient", scene);
+	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
+	// 2. diffuse maps
+	std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "textures.diffuse", scene);
+	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	// 3. specular maps
+	std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "textures.specular", scene);
+	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	// 4. normal maps
+	std::vector<Texture> normalMaps = LoadMaterialTextures(material, aiTextureType_HEIGHT, "textures.normal", scene);
+	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+	// 5. height maps
+	std::vector<Texture> heightMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "textures.height", scene);
+	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+	ExtractBoneWeightForVertices(vertices, mesh, scene);
+
+	// Return a mesh object created from the extracted mesh data
+	return Mesh(vertices, indices, textures);
+}
+
+std::vector<Texture> Model::LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene* scene) {
+	std::vector<Texture> textures;
+
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
+		aiString str;
+		mat->GetTexture(type, i, &str);
+
+		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+		bool skip = false;
+		for (unsigned int j = 0; j < m_textures_loaded.size(); j++) {
+			if (std::strcmp(m_textures_loaded[j].path.data(), str.C_Str()) == 0) {
+				textures.push_back(m_textures_loaded[j]);
+				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+				break;
+			}
 		}
-		else if (prefix == "Ks") { // Specular
-			ss >> tempVec3.x >> tempVec3.y >> tempVec3.z;
-			m_textures[currentMtlName].Ks = tempVec3;
+
+		if (!skip) { // If texture hasn't been loaded already, load it
+			Texture texture;
+
+			const aiTexture* tex = scene->GetEmbeddedTexture(str.C_Str());
+
+			if (tex != nullptr)
+				texture.id = TextureFrom_FBX_EmbeddedTexture(tex);
+			else 
+				texture.id = TextureFromFile(str.C_Str(), m_directory);
+
+			texture.type = typeName;
+			texture.path = str.C_Str();
+			textures.push_back(texture);
+			m_textures_loaded.push_back(texture); // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
 		}
-		else if (prefix == "Ns") { // Specular shininess
-			ss >> tempFloat;
-			m_textures[currentMtlName].shininess = tempFloat;
-		}
-		else if (prefix == "map_Ka") {} // Ambient texture map
-		else if (prefix == "map_Kd") { // Diffuse texture map
-			ss.ignore(1); // skip space
-			std::getline(ss, tempString);
-			m_textures[currentMtlName].id = LoadTextureFile(tempString);
-		}
-		else if (prefix == "map_Ks") {} // Specular texture map
-		else if (prefix == "map_d") {} // Alpha texture map
+	}
+
+	return textures;
+}
+
+/*
+ *  Model Animation
+ */
+void Model::SetVertexBoneDataToDefault(Vertex& vertex) {
+	for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
+		vertex.m_BoneIDs[i] = -1;
+		vertex.m_Weights[i] = 0.0f;
 	}
 }
 
-unsigned int Model::LoadTextureFile(std::string filename) {
-	unsigned int id;
-	glGenTextures(1, &id);
-
-	int width, height, channels;
-	stbi_set_flip_vertically_on_load(true); // Flip y-axis when loading
-	unsigned char *texture = stbi_load((m_directory + '/' + filename).c_str(), &width, &height, &channels, 0);
-
-	if (texture) {
-		GLenum format;
-		if (channels == 1) format = GL_RED;
-		else if (channels == 3) format = GL_RGB;
-		else if (channels == 4) format = GL_RGBA;
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		glBindTexture(GL_TEXTURE_2D, id);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, texture);
-		glGenerateMipmap(GL_TEXTURE_2D);
+void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight) {
+	for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
+		if (vertex.m_BoneIDs[i] < 0) {
+			vertex.m_Weights[i] = weight;
+			vertex.m_BoneIDs[i] = boneID;
+			break;
+		}
 	}
-	else {
-		std::cout << "Failed to load texture" << std::endl;
+}
+
+void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene) {
+	auto& boneInfoMap = m_boneInfoMap;
+	int& boneCount = m_boneCounter;
+
+	for (int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++) {
+		int boneID = -1;
+		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+
+		if (boneInfoMap.find(boneName) == boneInfoMap.end()) {
+			BoneInfo newBoneInfo;
+			newBoneInfo.id = boneCount;
+			newBoneInfo.offset = Utils::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
+			boneInfoMap[boneName] = newBoneInfo;
+			boneID = boneCount;
+			boneCount++;
+		}
+		else {
+			boneID = boneInfoMap[boneName].id;
+		}
+
+		assert(boneID != -1);
+		auto weights = mesh->mBones[boneIndex]->mWeights;
+		int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+		for (int weightIndex = 0; weightIndex < numWeights; weightIndex++) {
+			int vertexId = weights[weightIndex].mVertexId;
+			float weight = weights[weightIndex].mWeight;
+			assert(vertexId <= vertices.size());
+			SetVertexBoneData(vertices[vertexId], boneID, weight);
+		}
 	}
-	stbi_image_free(texture);
-
-	return id;
-}
-
-void Model::UpdateInstanceDatas(std::vector<InstanceData> instances) {
-	for (unsigned int i = 0; i < m_meshes.size(); i++)
-		m_meshes[i].UpdateInstanceDatas(instances);
-}
-
-void Model::UpdateShadowMaps(std::vector<GLuint> shadowMaps) {
-	for (unsigned int i = 0; i < m_meshes.size(); i++)
-		m_meshes[i].UpdateShadowMaps(shadowMaps);
-}
-
-void Model::Render(Shader &shader) {
-	for (unsigned int i = 0; i < m_meshes.size(); i++)
-		m_meshes[i].Render(shader);
 }

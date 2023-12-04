@@ -1,12 +1,17 @@
 #version 460 core
 
-struct Material {
+const int MAX_DIRICTION_LIGHT = 16;
+
+struct Texture {
     sampler2D ambient;
     sampler2D diffuse;
     sampler2D specular;
-    vec3 Ka;
-    vec3 Kd;
-    vec3 Ks;
+};
+
+struct Material {
+    vec3 ambient; // Ka
+    vec3 diffuse; // Kd
+    vec3 specular; // Ks
     float shininess;
 }; 
 
@@ -26,38 +31,39 @@ in VertexData {
     vec2 texCoord; 
     vec3 normal;
 
-    vec4 positionDirectionLightSpace[16];
+    vec4 positionDirectionLightSpace[MAX_DIRICTION_LIGHT];
 } fs_in;
 
 out vec4 FragColor;
 
 uniform vec3 viewPos;
+uniform Texture textures;
 uniform Material material;
 
 uniform DirectionLight dirLight;
-uniform sampler2D DirectionLightShadowMap[16];
-uniform int DirectionLightShadowMapNums;
+uniform int DirectionLightNums;
+uniform sampler2D DirectionLightShadowMaps[MAX_DIRICTION_LIGHT];
 
 vec3 CalcDirectionLight(DirectionLight light, vec3 normal, vec3 viewDir) {
     vec3 lightDir = normalize(-light.direction); // direction from the position to the light source
     vec3 reflectRay = reflect(-lightDir, normal);
 
     // Ambient = I * K
-    vec3 ambient = light.ambient * texture(material.ambient, fs_in.texCoord).rgb * material.Ka;
+    vec3 ambient = light.ambient * texture(textures.diffuse, fs_in.texCoord).rgb * material.ambient; // Use diffuse texture here
   	
     // Diffuse  = I * <N, L> * K
     float diff = max(dot(normal, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs_in.texCoord).rgb * material.Kd;
+    vec3 diffuse = light.diffuse * diff * texture(textures.diffuse, fs_in.texCoord).rgb * material.diffuse;
 
     // Specular = I * (<V, R>)^n * K
     float spec = pow(max(dot(viewDir, reflectRay), 0.0f), material.shininess);
-    vec3 specular = light.specular * spec * texture(material.specular, fs_in.texCoord).rgb * material.Ks;
+    vec3 specular = light.specular * spec * texture(textures.diffuse, fs_in.texCoord).rgb * material.specular; // Use diffuse texture here
 
     // Shadow value
 	float shadow = 0.0f;
 
     if (light.enableShadow) {
-        for (int i = 0; i < DirectionLightShadowMapNums; i++) {
+        for (int i = 0; i < DirectionLightNums; i++) {
              // Sets lightCoord to cull space
 	        vec3 lightCoord = fs_in.positionDirectionLightSpace[i].xyz / fs_in.positionDirectionLightSpace[i].w;
 	
@@ -71,11 +77,11 @@ vec3 CalcDirectionLight(DirectionLight light, vec3 normal, vec3 viewDir) {
 
 		        // Smoothens out the shadows
 		        int sampleRadius = 2;
-		        vec2 pixelSize = 1.0 / textureSize(DirectionLightShadowMap[i], 0);
+		        vec2 pixelSize = 1.0 / textureSize(DirectionLightShadowMaps[i], 0);
 
 		        for (int y = -sampleRadius; y <= sampleRadius; y++) {
 		            for (int x = -sampleRadius; x <= sampleRadius; x++) {
-		                float closestDepth = texture(DirectionLightShadowMap[i], lightCoord.xy + vec2(x, y) * pixelSize).r;
+		                float closestDepth = texture(DirectionLightShadowMaps[i], lightCoord.xy + vec2(x, y) * pixelSize).r;
 
 				        if (currentDepth > closestDepth + bias)
 					        shadow += 1.0f;     
@@ -93,7 +99,7 @@ vec3 CalcDirectionLight(DirectionLight light, vec3 normal, vec3 viewDir) {
 }
 
 void main() {
-    if (texture(material.diffuse, fs_in.texCoord).a == 0.0f) // Discard when alpha = 0
+    if (texture(textures.diffuse, fs_in.texCoord).a == 0.0f) // Discard when alpha = 0
         discard;
         
     vec4 renderColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
