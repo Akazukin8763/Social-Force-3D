@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Pedestrian.h"
 #include "Border.h"
+#include "PedestrianAnimator.h"
 
 #include <vector>
 
@@ -40,7 +41,7 @@ public:
     void Simulate(float dt);
 
     std::vector<glm::mat4> GetPedestrianInstanceTransforms();
-    std::vector<float> GetPedestrianInstanceVelocities();
+    std::vector<PedestrianState> GetPedestrianInstanceStates();
     std::vector<glm::mat4> GetBorderInstanceTransforms();
 
 };

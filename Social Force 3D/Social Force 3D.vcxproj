@@ -162,6 +162,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Pedestrian.h" />
+    <ClInclude Include="PedestrianAnimator.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowMapper.h" />

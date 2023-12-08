@@ -16,7 +16,7 @@
 #include "Camera.h"
 #include "SocialForce.h"
 #include "Model.h"
-#include "Animator.h"
+#include "PedestrianAnimator.h"
 #include "Plane.h"
 #include "Utils.h"
 

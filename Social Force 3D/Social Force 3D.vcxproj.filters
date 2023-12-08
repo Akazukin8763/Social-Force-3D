@@ -105,6 +105,9 @@
     <ClInclude Include="Animation.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="PedestrianAnimator.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">

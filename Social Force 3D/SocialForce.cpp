@@ -13,13 +13,13 @@ void SocialForce::SetScene() {
     // Create pedestrians
     Pedestrian* pedestrian;
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < MAX_INSTANCES / 2; i++) {
         pedestrian = new Pedestrian(glm::vec3(Utils::Random(-10.0f, -5.0f), 0.0f, Utils::Random(-3.5f, 3.5f)));
         pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::Random(7.5f, 17.5f), 0.0f, Utils::Random(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
         m_pedestrians.push_back(pedestrian);
     }
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < MAX_INSTANCES / 2; i++) {
         pedestrian = new Pedestrian(glm::vec3(Utils::Random(5.0f, 10.0f), 0.0f, Utils::Random(-3.5f, 3.5f)));
         pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::Random(-17.5f, -7.5f), 0.0f, Utils::Random(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
         m_pedestrians.push_back(pedestrian);
@@ -69,16 +69,22 @@ std::vector<glm::mat4> SocialForce::GetPedestrianInstanceTransforms() {
     return transforms;
 }
 
-std::vector<float> SocialForce::GetPedestrianInstanceVelocities() {
-    std::vector<float> velocities;
+std::vector<PedestrianState> SocialForce::GetPedestrianInstanceStates() {
+    std::vector<PedestrianState> states;
+    PedestrianState state;
     float velocity;
 
     for (Pedestrian* pedestrian : m_pedestrians) {
         velocity = glm::length(pedestrian->GetVelocity());
-        velocities.push_back(velocity);
+
+        if (velocity < 0.1f) state = PedestrianState::IDLE;
+        else if (0.1f <= velocity && velocity < 1.0f) state = PedestrianState::WALK;
+        else state = PedestrianState::RUN;
+
+        states.push_back(state);
     }
 
-    return velocities;
+    return states;
 }
 
 std::vector<glm::mat4> SocialForce::GetBorderInstanceTransforms() {
