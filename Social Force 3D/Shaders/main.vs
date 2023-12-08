@@ -11,9 +11,14 @@ layout(location = 6) in vec4 weights;
 
 layout(location = 7) in mat4 InstanceModelMatrix;
 
+const int MAX_INSTANCES = 40;
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
 const int MAX_DIRICTION_LIGHT = 16;
+
+layout(std430, binding = 0) buffer InstanceBonesBuffer {
+    mat4 FinalBonesMatrices[MAX_INSTANCES * MAX_BONES];
+};
 
 out VertexData {
 	vec3 position;
@@ -28,7 +33,6 @@ uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 
 uniform bool useAnimation;
-uniform mat4 FinalBonesMatrices[MAX_BONES];
 
 uniform int DirectionLightNums;
 uniform mat4 DirectionLightSpaceMatrices[MAX_DIRICTION_LIGHT];
@@ -47,10 +51,10 @@ void main() {
 				break;
 			}
 
-			vec4 localPosition = FinalBonesMatrices[boneIds[i]] * vec4(position, 1.0);
+			vec4 localPosition = FinalBonesMatrices[gl_InstanceID * MAX_BONES + boneIds[i]] * vec4(position, 1.0);
 			totalPosition += localPosition * weights[i];
-			vec3 localNormal = mat3(FinalBonesMatrices[boneIds[i]]) * normal;
-	   }
+			vec3 localNormal = mat3(FinalBonesMatrices[gl_InstanceID * MAX_BONES + boneIds[i]]) * normal;
+		}
 	}
 	else {
 		totalPosition = vec4(position, 1.0f);

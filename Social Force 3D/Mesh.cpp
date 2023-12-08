@@ -13,6 +13,7 @@ void Mesh::Setup() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
+    glGenBuffers(1, &SSBO);
     glGenBuffers(1, &InstanceVBO);
 
     // Binding
@@ -46,19 +47,24 @@ void Mesh::Setup() {
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
 
-    glBindBuffer(GL_ARRAY_BUFFER, InstanceVBO);
-
     // Instance Transform Matrix
-    for (int i = 0; i < 4; ++i) {
+    glBindBuffer(GL_ARRAY_BUFFER, InstanceVBO);
+    for (int i = 0; i < 4; i++) {
         glEnableVertexAttribArray(7 + i);
-        //glVertexAttribPointer(3 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(offsetof(InstanceData, transform) + sizeof(glm::vec4) * i));
-        glVertexAttribPointer(7 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(sizeof(glm::vec4) * i));
+        glVertexAttribPointer(7 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
         glVertexAttribDivisor(7 + i, 1); // Update each instances
     }
+
+    // Instance Bone Matrices
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::mat4) * MAX_INSTANCES * MAX_BONES, NULL, GL_DYNAMIC_DRAW);
 
     // Unbind
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void Mesh::Render(Shader &shader) {
@@ -86,11 +92,22 @@ void Mesh::Render(Shader &shader) {
     // Render
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, InstanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, m_instances.size() * sizeof(InstanceData), &m_instances[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * m_instanceTransforms.size(), m_instanceTransforms.data(), GL_STATIC_DRAW);
 
-    glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(m_indices.size()), GL_UNSIGNED_INT, 0, m_instances.size());
+    std::vector<glm::mat4> flattenedData;
+    for (const auto& bonesMatrices : m_instanceBonesMatrices) {
+        flattenedData.insert(flattenedData.end(), bonesMatrices.begin(), bonesMatrices.end());
+    }
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, SSBO);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(glm::mat4) * flattenedData.size(), flattenedData.data());
+
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(m_indices.size()), GL_UNSIGNED_INT, 0, m_instanceTransforms.size());
 
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     // Unbind texture
     glActiveTexture(GL_TEXTURE0);

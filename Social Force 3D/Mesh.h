@@ -12,10 +12,11 @@
 
 class Mesh {
 private:
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO, VBO, EBO, SSBO;
 
     unsigned int InstanceVBO;
-    std::vector<InstanceData> m_instances;
+    std::vector<glm::mat4> m_instanceTransforms;
+    std::vector<std::vector<glm::mat4>> m_instanceBonesMatrices;
     std::vector<GLuint> m_shadowMaps;
 
     void Setup();
@@ -32,7 +33,8 @@ public:
     // Render the mesh
     void Render(Shader &shader);
 
-    void UpdateInstanceDatas(std::vector<InstanceData> instances) { m_instances = instances; }
+    void UpdateInstanceTransforms(std::vector<glm::mat4> instances) { m_instanceTransforms = instances; }
+    void UpdateInstanceBonesMatrices(std::vector<std::vector<glm::mat4>> instances) { m_instanceBonesMatrices = instances; }
     void UpdateShadowMaps(std::vector<GLuint> shadowMaps) { m_shadowMaps = shadowMaps; }
 
 };

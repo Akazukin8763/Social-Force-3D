@@ -76,9 +76,18 @@ void Application::Rendering() {
 
     Animation idleAnimation("./Models/Ch33_nonPBR/Idle.dae", &m_pedestrianModel);
     Animation walkAnimation("./Models/Ch33_nonPBR/Walking.dae", &m_pedestrianModel);
+    Animation runAnimation("./Models/Ch33_nonPBR/Running.dae", &m_pedestrianModel);
     Animator animator(&idleAnimation);
+    float transitionsTime = 0.5f;
+
     animator.UpdateAnimation(0);
-    m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+    //m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+
+    auto bones = animator.GetFinalBoneMatrices();
+    std::vector<std::vector<glm::mat4>> matrices;
+    for (int i = 0; i < MAX_INSTANCES; i++)
+        matrices.push_back(bones);
+    m_pedestrianModel.UpdateInstanceBonesMatrices(matrices);
 
     // Border
     m_borderModel = Model("./Models/cube/cube.obj");
@@ -91,7 +100,7 @@ void Application::Rendering() {
     tempGroundModel.SetAnimation(false);
     tempGroundModel.SetModelMatrix(Matrix4::identity);
     tempGroundModel.SetShadow(true);
-    tempGroundModel.UpdateInstanceDatas(std::vector<InstanceData> { InstanceData { glm::scale(Matrix4::identity, glm::vec3(40, 0.1, 20)) } });
+    tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(40, 0.1, 20)) });
 
     m_plane = Plane(25);
 
@@ -125,11 +134,22 @@ void Application::Rendering() {
             m_socialForce.Simulate(m_deltaTime);
 
             // Animations
+            if (animator.IsTransiting())
+                m_pedestrianModel.SetModelMatrix(glm::scale(Matrix4::identity, glm::vec3(0.01f, 0.01f, 0.01f))); // Due to the mixamo model size, we need to resize the model matrix by 0.01
+            else
+                m_pedestrianModel.SetModelMatrix(Matrix4::identity);
+
             animator.UpdateAnimation(m_deltaTime);
-            m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+            //m_pedestrianModel.UpdateBonesMatrices(animator.GetFinalBoneMatrices());
+
+            auto bones = animator.GetFinalBoneMatrices();
+            std::vector<std::vector<glm::mat4>> matrices;
+            for (int i = 0; i < MAX_INSTANCES; i++)
+                matrices.push_back(bones);
+            m_pedestrianModel.UpdateInstanceBonesMatrices(matrices);
         }
-        m_pedestrianModel.UpdateInstanceDatas(m_socialForce.GetPedestrianInstances());
-        m_borderModel.UpdateInstanceDatas(m_socialForce.GetBorderInstances());
+        m_pedestrianModel.UpdateInstanceTransforms(m_socialForce.GetPedestrianInstanceTransforms());
+        m_borderModel.UpdateInstanceTransforms(m_socialForce.GetBorderInstanceTransforms());
 
         // Matrix
         projection = m_camera.GetProjectionMatrix();
@@ -241,9 +261,9 @@ void Application::Rendering() {
             // Animation
             if (ImGui::Checkbox("Walking Animation", &m_walkFlag)) {
                 if (m_walkFlag)
-                    animator.PlayAnimation(&walkAnimation);
+                    animator.PlayAnimation(&walkAnimation, transitionsTime);
                 else
-                    animator.PlayAnimation(&idleAnimation);
+                    animator.PlayAnimation(&idleAnimation, transitionsTime);
             }
 
             ImGui::End();

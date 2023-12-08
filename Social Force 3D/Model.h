@@ -41,7 +41,6 @@ private:
 	bool m_animationFlag = false;
 	std::map<std::string, BoneInfo> m_boneInfoMap;
 	int m_boneCounter = 0;
-	std::vector<glm::mat4> m_boneMatrices;
 
 	glm::mat4 m_modelMatrix = Matrix4::identity;
 
@@ -73,23 +72,20 @@ public:
 	void Render(Shader &shader) {
 		// Setup Animations
 		shader.SetBool("useAnimation", m_animationFlag);
-		for (int i = 0; i < m_boneMatrices.size(); ++i) {
-			std::string index = std::to_string(i);
-			shader.SetMat4("FinalBonesMatrices[" + index + "]", m_boneMatrices[i]);
-		}
 		
 		// Render the meshes
 		for (unsigned int i = 0; i < m_meshes.size(); i++)
 			m_meshes[i].Render(shader);
 	}
 
-	void UpdateBonesMatrices(std::vector<glm::mat4> boneMatrices) {
-		m_boneMatrices = boneMatrices;
+	void UpdateInstanceTransforms(std::vector<glm::mat4> instances) {
+		for (unsigned int i = 0; i < m_meshes.size(); i++)
+			m_meshes[i].UpdateInstanceTransforms(instances);
 	}
 
-	void UpdateInstanceDatas(std::vector<InstanceData> instances) {
+	void UpdateInstanceBonesMatrices(std::vector<std::vector<glm::mat4>> instances) {
 		for (unsigned int i = 0; i < m_meshes.size(); i++)
-			m_meshes[i].UpdateInstanceDatas(instances);
+			m_meshes[i].UpdateInstanceBonesMatrices(instances);
 	}
 
 	void UpdateShadowMaps(std::vector<GLuint> shadowMaps) {

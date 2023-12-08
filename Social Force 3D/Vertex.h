@@ -3,10 +3,6 @@
 
 #include "Utils.h"
 
-struct InstanceData {
-	glm::mat4 transform;
-};
-
 struct Vertex {
     // position
     glm::vec3 Position;

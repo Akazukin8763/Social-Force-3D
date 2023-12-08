@@ -10,18 +10,7 @@ Model::Model(std::string const &path, bool gamma)  {
  *  Model Loading
  */
 void Model::LoadModel(std::string const &path) {
-	unsigned int assimp_read_flag = aiProcess_Triangulate |
-		aiProcess_SortByPType |
-		aiProcess_GenUVCoords |
-		aiProcess_OptimizeMeshes |
-		aiProcess_ValidateDataStructure |
-		aiProcess_GenNormals |
-		aiProcess_CalcTangentSpace |
-		aiProcess_LimitBoneWeights |
-		aiProcess_JoinIdenticalVertices|
-		aiProcess_FlipWindingOrder;
-
-	assimp_read_flag = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
+	unsigned int assimp_read_flag = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
 
 	// read file via ASSIMP
 	Assimp::Importer importer;

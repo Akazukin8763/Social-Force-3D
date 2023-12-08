@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include "Shader.h"
-#include "Model.h"
 #include "Pedestrian.h"
 #include "Border.h"
 
@@ -12,10 +11,7 @@
 
 class SocialForce {
 private:
-    Model* m_pedestrianModel;
     std::vector<Pedestrian*> m_pedestrians;
-
-    Model* m_borderModel;
     std::vector<Border*> m_borders;
 
 public:
@@ -43,8 +39,10 @@ public:
 
     void Simulate(float dt);
 
-    std::vector<InstanceData> GetPedestrianInstances();
-    std::vector<InstanceData> GetBorderInstances();
+    std::vector<glm::mat4> GetPedestrianInstanceTransforms();
+    std::vector<float> GetPedestrianInstanceVelocities();
+    std::vector<glm::mat4> GetBorderInstanceTransforms();
+
 };
 
 #endif // !__SOCIAL_FORCE_H__

@@ -53,29 +53,44 @@ void SocialForce::Simulate(float dt) {
         pedestrian->Simulate(m_pedestrians, m_borders, dt);
 }
 
-std::vector<InstanceData> SocialForce::GetPedestrianInstances() {
-    std::vector<InstanceData> instances;
-    InstanceData instance;
+/*
+ *  Instances
+ */
+std::vector<glm::mat4> SocialForce::GetPedestrianInstanceTransforms() {
+    std::vector<glm::mat4> transforms;
+    glm::mat4 transform;
     
     for (Pedestrian* pedestrian : m_pedestrians) {
-        instance.transform = glm::translate(Matrix4::identity, pedestrian->GetPosition());
-        instance.transform = glm::rotate(instance.transform, pedestrian->GetRadian(), Vector3::up);
-        instances.push_back(instance);
+        transform = glm::translate(Matrix4::identity, pedestrian->GetPosition());
+        transform = glm::rotate(transform, pedestrian->GetRadian(), Vector3::up);
+        transforms.push_back(transform);
     }
 
-    return instances;
+    return transforms;
 }
 
-std::vector<InstanceData> SocialForce::GetBorderInstances() {
-    std::vector<InstanceData> instances;
-    InstanceData instance;
+std::vector<float> SocialForce::GetPedestrianInstanceVelocities() {
+    std::vector<float> velocities;
+    float velocity;
 
-    for (Border* border : m_borders) {
-        instance.transform = glm::translate(Matrix4::identity, border->GetPosition());
-        instance.transform = glm::rotate(instance.transform, border->GetRadian(), Vector3::up);
-        instance.transform = glm::scale(instance.transform, glm::vec3(border->GetLength(), 1, 0.5));
-        instances.push_back(instance);
+    for (Pedestrian* pedestrian : m_pedestrians) {
+        velocity = glm::length(pedestrian->GetVelocity());
+        velocities.push_back(velocity);
     }
 
-    return instances;
+    return velocities;
+}
+
+std::vector<glm::mat4> SocialForce::GetBorderInstanceTransforms() {
+    std::vector<glm::mat4> transforms;
+    glm::mat4 transform;
+
+    for (Border* border : m_borders) {
+        transform = glm::translate(Matrix4::identity, border->GetPosition());
+        transform = glm::rotate(transform, border->GetRadian(), Vector3::up);
+        transform = glm::scale(transform, glm::vec3(border->GetLength(), 1, 0.5));
+        transforms.push_back(transform);
+    }
+
+    return transforms;
 }
