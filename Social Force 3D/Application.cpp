@@ -69,14 +69,14 @@ void Application::Rendering() {
     m_socialForce = SocialForce();
 
     // Pedestrain
-    m_pedestrianModel = Model("./Models/Ch33_nonPBR/Ch33_nonPBR.dae");
+    m_pedestrianModel = Model("./Models/pedestrian/idle.dae");
     m_pedestrianModel.SetAnimation(true);
-    m_pedestrianModel.SetModelMatrix(Matrix4::identity);
+    m_pedestrianModel.SetModelMatrix(glm::scale(Matrix4::identity, glm::vec3(0.2f, 0.2f, 0.2f)));
     m_pedestrianModel.SetShadow(true);
 
-    Animation idleAnimation("./Models/Ch33_nonPBR/Idle.dae", &m_pedestrianModel);
-    Animation walkAnimation("./Models/Ch33_nonPBR/Walking.dae", &m_pedestrianModel);
-    Animation runAnimation("./Models/Ch33_nonPBR/Running.dae", &m_pedestrianModel);
+    Animation idleAnimation("./Models/pedestrian/idle.dae", &m_pedestrianModel);
+    Animation walkAnimation("./Models/pedestrian/walk.dae", &m_pedestrianModel);
+    Animation runAnimation("./Models/pedestrian/run.dae", &m_pedestrianModel);
 
     PedestrianAnimator animators(idleAnimation, walkAnimation, runAnimation);
     m_pedestrianModel.UpdateInstanceBonesMatrices(animators.GetFinalBoneMatrices());

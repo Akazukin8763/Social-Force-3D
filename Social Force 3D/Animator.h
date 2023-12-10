@@ -160,8 +160,9 @@ public:
 			m_finalBoneMatrices[index] = globalTransformation * offset;
 		}
 
-		for (int i = 0; i < currentNode->childrenCount; i++)
+		for (int i = 0; i < currentNode->childrenCount; i++) {
 			CalculateBlendedBoneTransform(&currentNode->children[i], &targetNode->children[i], globalTransformation, ratio);
+		}
 	}
 
 	std::vector<glm::mat4> GetFinalBoneMatrices() {

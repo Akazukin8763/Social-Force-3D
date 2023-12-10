@@ -69,10 +69,12 @@ public:
 
     void UpdateAnimations(float deltaTime) {
         for (int i = 0; i < MAX_INSTANCES; i++) {
+            /*
             if (m_animators[i].IsTransiting())
                 m_modelMatrices[i] = glm::scale(Matrix4::identity, glm::vec3(0.01f, 0.01f, 0.01f)); // Due to the mixamo model size, we need to resize the model matrix by 0.01
             else
                 m_modelMatrices[i] = Matrix4::identity;
+            */
 
             m_animators[i].UpdateAnimation(deltaTime);
             m_finalBoneMatrices[i] = m_animators[i].GetFinalBoneMatrices();
