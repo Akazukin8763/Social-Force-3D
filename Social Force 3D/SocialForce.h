@@ -19,6 +19,12 @@ private:
     std::vector<Pedestrian*> m_pedestrians;
     std::vector<Border*> m_borders;
 
+    void SetScene();
+    void GeneratePedestrian();
+    void GenerateBorder();
+
+    Pedestrian* GeneraePedestrianByType(int type);
+
 public:
     SocialForce() = default;
     SocialForce(int maxPedestrians);
@@ -26,7 +32,6 @@ public:
     //void AddPedestrian(Pedestrian* pedestrian) { m_pedestrians.push_back(pedestrian); }
     //void AddBorder(Border* border) { m_borders.push_back(border); }
 
-    void SetScene();
     void UpdatePedestrianNums(int nums);
 
     void SetPedestrianRepulsiveForceType(int type) { 

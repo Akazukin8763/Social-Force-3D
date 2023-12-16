@@ -12,7 +12,7 @@
 
 #define BACKGROUND_COLOR 49.0f/255.0f, 51.0f/255.0f, 56.0f/255.0f, 1.0f
 
-#define MAX_INSTANCES 32
+#define MAX_INSTANCES 40
 #define MAX_BONES 100
 #define MAX_BONE_INFLUENCE 4
 
@@ -21,7 +21,7 @@
 
 // Pedestrian 
 #define PEDESTRIAN_RADIUS 0.5f
-#define CHECKPOINT_RADIUS 0.03f
+#define CHECKPOINT_RADIUS 1.2f
 
 #define SAFE_ZONE 1.0f
 

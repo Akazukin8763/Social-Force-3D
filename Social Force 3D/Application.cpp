@@ -92,9 +92,9 @@ void Application::Rendering() {
     tempGroundModel.SetAnimation(false);
     tempGroundModel.SetModelMatrix(Matrix4::identity);
     tempGroundModel.SetShadow(true);
-    tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(40, 0.1, 20)) });
+    tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(50, 0.1, 50)) });
 
-    m_plane = Plane(25);
+    m_plane = Plane(50);
 
     glm::mat4 projection, view, model;
     std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel };

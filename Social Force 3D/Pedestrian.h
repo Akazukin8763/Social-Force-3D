@@ -57,6 +57,7 @@ private:
 public:
     Pedestrian(glm::vec3 origin);
 
+    bool IsFinished() { return IsAllCheckpointsArrived(); }
     bool IsActivated() { return m_isActivated; }
     void SetActivated(bool value) { m_isActivated = value; }
 

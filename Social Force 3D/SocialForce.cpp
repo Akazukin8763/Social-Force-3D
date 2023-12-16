@@ -17,41 +17,108 @@ void SocialForce::SetScene() {
     m_pedestrians.clear();
     m_borders.clear();
 
+    GeneratePedestrian();
+    GenerateBorder();
+}
+
+void SocialForce::GeneratePedestrian() {
     // Create pedestrians
     Pedestrian* pedestrian;
 
-    for (int i = 0; i < m_maxPedestrians / 2; i++) {
-        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(-10.0f, -5.0f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)));
-        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(7.5f, 17.5f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
-        m_pedestrians.push_back(pedestrian);
+    for (int i = 0; i < m_maxPedestrians; i++)
+        m_pedestrians.push_back(GeneraePedestrianByType(i % 4));
+}
+
+Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
+    float halfedge = 25.0f;
+    float start = halfedge - 5.0f;
+    float mid = 7.0f;
+    float range = 5.0f;
+
+    float roadWidth = 12.0f;
+    float roadOffset= roadWidth / 2;
+
+    Pedestrian* pedestrian;
+
+    if (type == 0) {
+        pedestrian = new Pedestrian(glm::vec3(start, 0.0f, Utils::RandomFloat(-range, range)));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(mid, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
+    }
+    else if (type == 1) {
+        pedestrian = new Pedestrian(glm::vec3(-start, 0.0f, Utils::RandomFloat(-range, range)));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(-mid, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
+    }
+    else if (type == 2) {
+        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(-range, range), 0.0f, start));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, mid), CHECKPOINT_RADIUS });
+    }
+    else {
+        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(-range, range), 0.0f, -start));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, -mid), CHECKPOINT_RADIUS });
     }
 
-    for (int i = 0; i < m_maxPedestrians / 2; i++) {
-        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(5.0f, 10.0f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)));
-        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-17.5f, -7.5f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
-        m_pedestrians.push_back(pedestrian);
+    int random;
+    do {
+        random = Utils::RandomInt(0, 4);
+    } while (random == type);
+
+    if (random == 0) {
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(mid, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(start, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
     }
+    else if (random == 1) {
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(-mid, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(-start, 0.0f, Utils::RandomFloat(-range, range)), CHECKPOINT_RADIUS });
+    }
+    else if (random == 2) {
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, mid), CHECKPOINT_RADIUS });
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, start), CHECKPOINT_RADIUS });
+    }
+    else {
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, -mid), CHECKPOINT_RADIUS });
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-range, range), 0.0f, -start), CHECKPOINT_RADIUS });
+    }
+
+    return pedestrian;
+}
+
+void SocialForce::GenerateBorder() {
+    float halfedge = 25.0f;
+    float roadWidth = 12.0f;
+    float roadOffset= roadWidth / 2;
 
     // Create borders
     Border* border;
 
-    border = new Border(glm::vec3(-20.0f, 0.0f, -10.0f), glm::vec3(20.0f, 0.0f, -10.0f));
+    // Bound
+    border = new Border(glm::vec3(halfedge, 0.0f, -halfedge), glm::vec3(halfedge, 0.0f, halfedge));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(-20.0f, 0.0f, 10.0f), glm::vec3(20.0f, 0.0f, 10.0f));
+    border = new Border(glm::vec3(halfedge, 0.0f, -halfedge), glm::vec3(-halfedge, 0.0f, -halfedge));
     m_borders.push_back(border);
-
-    border = new Border(glm::vec3(-1.5f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 1.5f));
+    border = new Border(glm::vec3(-halfedge, 0.0f, halfedge), glm::vec3(halfedge, 0.0f, halfedge));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(1.5f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 1.5f));
-    m_borders.push_back(border);
-    border = new Border(glm::vec3(-1.5f, 0.0f, -10.0f), glm::vec3(0.0f, 0.0f, -1.5f));
-    m_borders.push_back(border);
-    border = new Border(glm::vec3(1.5f, 0.0f, -10.0f), glm::vec3(0.0f, 0.0f, -1.5f));
+    border = new Border(glm::vec3(-halfedge, 0.0f, halfedge), glm::vec3(-halfedge, 0.0f, -halfedge));
     m_borders.push_back(border);
 
-    border = new Border(glm::vec3(-20.0f, 0.0f, -10.0f), glm::vec3(-20.0f, 0.0f, 10.0f));
+    // Intersection
+    border = new Border(glm::vec3(-roadOffset, 0.0f, -halfedge), glm::vec3(-roadOffset, 0.0f, -roadOffset));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(20.0f, 0.0f, -10.0f), glm::vec3(20.0f, 0.0f, 10.0f));
+    border = new Border(glm::vec3(-halfedge, 0.0f, -roadOffset), glm::vec3(-roadOffset, 0.0f, -roadOffset));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(roadOffset, 0.0f, -halfedge), glm::vec3(roadOffset, 0.0f, -roadOffset));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(halfedge, 0.0f, -roadOffset), glm::vec3(roadOffset, 0.0f, -roadOffset));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(-roadOffset, 0.0f, halfedge), glm::vec3(-roadOffset, 0.0f, roadOffset));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(-halfedge, 0.0f, roadOffset), glm::vec3(-roadOffset, 0.0f, roadOffset));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(roadOffset, 0.0f, halfedge), glm::vec3(roadOffset, 0.0f, roadOffset));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(halfedge, 0.0f, roadOffset), glm::vec3(roadOffset, 0.0f, roadOffset));
     m_borders.push_back(border);
 }
 
@@ -70,13 +137,21 @@ void SocialForce::UpdatePedestrianNums(int nums) {
         // iter until find the different activated state target
         while (m_pedestrians[pick]->IsActivated() == newActivatedState)
             pick = (pick + 1) % m_maxPedestrians;
+
+        if (!newActivatedState)
+            m_pedestrians[pick] = GeneraePedestrianByType(pick % 4);
         m_pedestrians[pick]->SetActivated(newActivatedState);
     }
 }
 
 void SocialForce::Simulate(float dt) {
-    for (Pedestrian* pedestrian : m_pedestrians)
+    for (int i = 0; i < m_maxPedestrians; i++) {
+        Pedestrian* pedestrian = m_pedestrians[i];
         pedestrian->Simulate(m_pedestrians, m_borders, dt);
+
+        if (pedestrian->IsFinished())
+            m_pedestrians[i] = GeneraePedestrianByType(i % 4);
+    }
 }
 
 /*
