@@ -12,6 +12,8 @@ enum class PedestrianState {
 
 class PedestrianAnimator {
 private:
+    int m_maxPedestrians;
+
     std::vector<Animator> m_animators;
     std::vector<PedestrianState> m_pedestrianStates;
 
@@ -25,26 +27,28 @@ private:
     std::vector<std::vector<glm::mat4>> m_finalBoneMatrices;
 
 public:
-    PedestrianAnimator(Animation idle, Animation walk, Animation run) {
+    PedestrianAnimator(int maxPedestrians, Animation idle, Animation walk, Animation run) {
+        m_maxPedestrians = maxPedestrians;
+
         m_idleAnimtion = idle;
         m_walkAnimtion = walk;
         m_runAnimtion = run;
 
-        m_animators = std::vector<Animator>(MAX_INSTANCES);
-        m_pedestrianStates = std::vector<PedestrianState>(MAX_INSTANCES, PedestrianState::IDLE);
-        m_modelMatrices = std::vector<glm::mat4>(MAX_INSTANCES, Matrix4::identity);
-        m_finalBoneMatrices = std::vector<std::vector<glm::mat4>>(MAX_INSTANCES, std::vector<glm::mat4>(MAX_BONES, Matrix4::identity));
+        m_animators = std::vector<Animator>(maxPedestrians);
+        m_pedestrianStates = std::vector<PedestrianState>(maxPedestrians, PedestrianState::IDLE);
+        m_modelMatrices = std::vector<glm::mat4>(maxPedestrians, Matrix4::identity);
+        m_finalBoneMatrices = std::vector<std::vector<glm::mat4>>(maxPedestrians, std::vector<glm::mat4>(MAX_BONES, Matrix4::identity));
 
-        for (int i = 0; i < MAX_INSTANCES; i++)
+        for (int i = 0; i < maxPedestrians; i++)
             m_animators[i] = Animator(&m_idleAnimtion);
         UpdateAnimations(0);
     }
 
     void UpdateStates(std::vector<PedestrianState> states) {
-        if (states.size() != MAX_INSTANCES)
+        if (states.size() != m_maxPedestrians)
             return;
 
-        for (int i = 0; i < MAX_INSTANCES; i++) {
+        for (int i = 0; i < m_maxPedestrians; i++) {
             if (m_pedestrianStates[i] != states[i]) {
                 m_pedestrianStates[i] = states[i];
 
@@ -68,21 +72,42 @@ public:
     }
 
     void UpdateAnimations(float deltaTime) {
-        for (int i = 0; i < MAX_INSTANCES; i++) {
-            /*
-            if (m_animators[i].IsTransiting())
-                m_modelMatrices[i] = glm::scale(Matrix4::identity, glm::vec3(0.01f, 0.01f, 0.01f)); // Due to the mixamo model size, we need to resize the model matrix by 0.01
-            else
-                m_modelMatrices[i] = Matrix4::identity;
-            */
+        for (int i = 0; i < m_maxPedestrians; i++) {
+            if (m_pedestrianStates[i] == PedestrianState::UNKNOWN)
+                continue;
 
             m_animators[i].UpdateAnimation(deltaTime);
             m_finalBoneMatrices[i] = m_animators[i].GetFinalBoneMatrices();
         }
     }
 
-    std::vector<glm::mat4> GetModelMatrices() { return m_modelMatrices; }
-    std::vector<std::vector<glm::mat4>> GetFinalBoneMatrices() { return  m_finalBoneMatrices; }
+    std::vector<glm::mat4> GetModelMatrices() { 
+        std::vector<glm::mat4> modelMatrices;
+
+        for (int i = 0; i < m_maxPedestrians; i++) {
+            if (m_pedestrianStates[i] == PedestrianState::UNKNOWN)
+                continue;
+            
+            modelMatrices.push_back(m_modelMatrices[i]);
+        }
+
+        return modelMatrices;
+        //return m_modelMatrices; 
+    }
+
+    std::vector<std::vector<glm::mat4>> GetFinalBoneMatrices() {
+        std::vector<std::vector<glm::mat4>> finalBoneMatrices;
+
+        for (int i = 0; i < m_maxPedestrians; i++) {
+            if (m_pedestrianStates[i] == PedestrianState::UNKNOWN)
+                continue;
+
+            finalBoneMatrices.push_back(m_finalBoneMatrices[i]);
+        }
+
+        return finalBoneMatrices;
+        //return m_finalBoneMatrices; 
+    }
 
 };
 

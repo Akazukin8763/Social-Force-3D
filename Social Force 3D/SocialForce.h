@@ -12,16 +12,22 @@
 
 class SocialForce {
 private:
+    int m_currentPedestrians;
+    int m_maxPedestrians;
+    std::vector<bool> m_activated;
+
     std::vector<Pedestrian*> m_pedestrians;
     std::vector<Border*> m_borders;
 
 public:
-    SocialForce();
+    SocialForce() = default;
+    SocialForce(int maxPedestrians);
 
-    void AddPedestrian(Pedestrian* pedestrian) { m_pedestrians.push_back(pedestrian); }
-    void AddBorder(Border* border) { m_borders.push_back(border); }
+    //void AddPedestrian(Pedestrian* pedestrian) { m_pedestrians.push_back(pedestrian); }
+    //void AddBorder(Border* border) { m_borders.push_back(border); }
 
     void SetScene();
+    void UpdatePedestrianNums(int nums);
 
     void SetPedestrianRepulsiveForceType(int type) { 
         for (Pedestrian* pedestrian : m_pedestrians)

@@ -106,8 +106,8 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithCS(std::vector<Pedestrian*>
     glm::vec3 e_i = GetDesiredDirection();
 
     for (Pedestrian* opponent : others) {
-        // Exclude itself
-        if (opponent == this)
+        // Exclude itself or not activared opponent
+        if (opponent == this || !opponent->m_isActivated)
             continue;
 
         // Ignore if opponent is too far away
@@ -158,8 +158,8 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES1(std::vector<Pedestrian*
     glm::vec3 e_i = GetDesiredDirection();
 
     for (Pedestrian* opponent : others) {
-        // Exclude itself
-        if (opponent == this)
+        // Exclude itself or not activared opponent
+        if (opponent == this || !opponent->m_isActivated)
             continue;
 
         // Ignore if opponent is too far away
@@ -252,8 +252,8 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES2(std::vector<Pedestrian*
     glm::vec3 e_i = GetDesiredDirection();
 
     for (Pedestrian* opponent : others) {
-        // Exclude itself
-        if (opponent == this)
+        // Exclude itself or not activared opponent
+        if (opponent == this || !opponent->m_isActivated)
             continue;
 
         // Ignore if opponent is too far away
@@ -325,8 +325,8 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithNES(std::vector<Pedestrian*
     glm::vec3 e_i = GetDesiredDirection();
 
     for (Pedestrian* opponent : others) {
-        // Exclude itself
-        if (opponent == this)
+        // Exclude itself or not activared opponent
+        if (opponent == this || !opponent->m_isActivated)
             continue;
 
         // Ignore if opponent is too far away
@@ -442,6 +442,10 @@ void Pedestrian::SetPedestrianRepulsiveForceType(int type) {
 }
 
 void Pedestrian::Simulate(std::vector<Pedestrian*> others, std::vector<Border*> borders, float dt) {
+    // Return if isn't activated
+    if (!m_isActivated)
+        return;
+
     // Check position
     CheckCheckpoints();
 

@@ -16,6 +16,8 @@
 
 class Pedestrian {
 private:
+    bool m_isActivated = true;
+
     glm::vec3 m_position;
     glm::vec3 m_velocity = Vector3::zero;
     float m_radius = PEDESTRIAN_RADIUS;
@@ -54,6 +56,9 @@ private:
 
 public:
     Pedestrian(glm::vec3 origin);
+
+    bool IsActivated() { return m_isActivated; }
+    void SetActivated(bool value) { m_isActivated = value; }
 
     glm::vec3 GetPosition() { return m_position; }
     float GetRadian() { return glm::orientedAngle(Vector3::forward, GetDesiredDirection(), Vector3::up); }

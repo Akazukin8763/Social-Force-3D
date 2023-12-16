@@ -66,7 +66,7 @@ void Application::Rendering() {
     m_planeShader = Shader("./Shaders/plane.vs", "./Shaders/plane.fs");
     m_shadowMapper.Setup();
 
-    m_socialForce = SocialForce();
+    m_socialForce = SocialForce(MAX_INSTANCES);
 
     // Pedestrain
     m_pedestrianModel = Model("./Models/pedestrian/idle.dae");
@@ -78,7 +78,7 @@ void Application::Rendering() {
     Animation walkAnimation("./Models/pedestrian/walk.dae", &m_pedestrianModel);
     Animation runAnimation("./Models/pedestrian/run.dae", &m_pedestrianModel);
 
-    PedestrianAnimator animators(idleAnimation, walkAnimation, runAnimation);
+    PedestrianAnimator animators(MAX_INSTANCES, idleAnimation, walkAnimation, runAnimation);
     m_pedestrianModel.UpdateInstanceBonesMatrices(animators.GetFinalBoneMatrices());
 
     // Border
@@ -131,7 +131,7 @@ void Application::Rendering() {
 
             std::vector<glm::mat4> modelMatrices = animators.GetModelMatrices();
             std::vector<glm::mat4> transformMatrices = m_socialForce.GetPedestrianInstanceTransforms();
-            for (int i = 0; i < MAX_INSTANCES; i++)
+            for (int i = 0; i < m_pedestrianNums; i++)
                 transformMatrices[i] = transformMatrices[i] * modelMatrices[i];
             m_pedestrianModel.UpdateInstanceTransforms(transformMatrices);
         }
@@ -246,6 +246,11 @@ void Application::Rendering() {
             ImGui::Checkbox("Direction Light Shadow", &m_directionLightShadowFlag);
 
             ImGui::Separator();
+
+            // Numbers of Pedestrian
+            if (ImGui::SliderInt("Pedestrians Numbers", &m_pedestrianNums, 0, MAX_INSTANCES)) {
+                m_socialForce.UpdatePedestrianNums(m_pedestrianNums);
+            }
 
             ImGui::End();
         }

@@ -1,6 +1,13 @@
 #include "SocialForce.h"
 
-SocialForce::SocialForce() {
+SocialForce::SocialForce(int maxPedestrians) {
+    m_currentPedestrians = maxPedestrians;
+    m_maxPedestrians = maxPedestrians;
+    m_activated = std::vector<bool>(maxPedestrians, true);
+
+    m_pedestrians = std::vector<Pedestrian*>(maxPedestrians);
+    m_borders = std::vector<Border*>();
+
     SetScene();
     SetPedestrianRepulsiveForceType(ELLIPTICAL_SPECIFICATION_I);
     //SetPedestrianRepulsiveForceType(CIRCULAR_SPECIFICATION);
@@ -13,15 +20,15 @@ void SocialForce::SetScene() {
     // Create pedestrians
     Pedestrian* pedestrian;
 
-    for (int i = 0; i < MAX_INSTANCES / 2; i++) {
-        pedestrian = new Pedestrian(glm::vec3(Utils::Random(-10.0f, -5.0f), 0.0f, Utils::Random(-3.5f, 3.5f)));
-        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::Random(7.5f, 17.5f), 0.0f, Utils::Random(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
+    for (int i = 0; i < m_maxPedestrians / 2; i++) {
+        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(-10.0f, -5.0f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(7.5f, 17.5f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
         m_pedestrians.push_back(pedestrian);
     }
 
-    for (int i = 0; i < MAX_INSTANCES / 2; i++) {
-        pedestrian = new Pedestrian(glm::vec3(Utils::Random(5.0f, 10.0f), 0.0f, Utils::Random(-3.5f, 3.5f)));
-        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::Random(-17.5f, -7.5f), 0.0f, Utils::Random(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
+    for (int i = 0; i < m_maxPedestrians / 2; i++) {
+        pedestrian = new Pedestrian(glm::vec3(Utils::RandomFloat(5.0f, 10.0f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)));
+        pedestrian->AddCheckpoint(Checkpoint { glm::vec3(Utils::RandomFloat(-17.5f, -7.5f), 0.0f, Utils::RandomFloat(-3.5f, 3.5f)), CHECKPOINT_RADIUS });
         m_pedestrians.push_back(pedestrian);
     }
 
@@ -48,6 +55,25 @@ void SocialForce::SetScene() {
     m_borders.push_back(border);
 }
 
+void SocialForce::UpdatePedestrianNums(int nums) {
+    if (nums == m_currentPedestrians || nums < 0 || nums > m_maxPedestrians)
+        return;
+
+    bool newActivatedState = (nums > m_currentPedestrians ? true : false);
+    int updateNums = (nums > m_currentPedestrians ? nums - m_currentPedestrians : m_currentPedestrians - nums);
+
+    m_currentPedestrians = nums;
+
+    for (int i = 0; i < updateNums; i++) {
+        int pick = Utils::RandomInt(0, m_maxPedestrians);
+
+        // iter until find the different activated state target
+        while (m_pedestrians[pick]->IsActivated() == newActivatedState)
+            pick = (pick + 1) % m_maxPedestrians;
+        m_pedestrians[pick]->SetActivated(newActivatedState);
+    }
+}
+
 void SocialForce::Simulate(float dt) {
     for (Pedestrian* pedestrian : m_pedestrians)
         pedestrian->Simulate(m_pedestrians, m_borders, dt);
@@ -61,6 +87,9 @@ std::vector<glm::mat4> SocialForce::GetPedestrianInstanceTransforms() {
     glm::mat4 transform;
     
     for (Pedestrian* pedestrian : m_pedestrians) {
+        if (!pedestrian->IsActivated())
+            continue;
+
         transform = glm::translate(Matrix4::identity, pedestrian->GetPosition());
         transform = glm::rotate(transform, pedestrian->GetRadian(), Vector3::up);
         transforms.push_back(transform);
@@ -75,13 +104,18 @@ std::vector<PedestrianState> SocialForce::GetPedestrianInstanceStates() {
     float velocity;
 
     for (Pedestrian* pedestrian : m_pedestrians) {
-        velocity = glm::length(pedestrian->GetVelocity());
+        if (pedestrian->IsActivated()) {
+            velocity = glm::length(pedestrian->GetVelocity());
 
-        if (velocity < 0.1f) state = PedestrianState::IDLE;
-        else if (0.1f <= velocity && velocity < 1.0f) state = PedestrianState::WALK;
-        else state = PedestrianState::RUN;
+            if (velocity < 0.1f) state = PedestrianState::IDLE;
+            else if (0.1f <= velocity && velocity < 1.0f) state = PedestrianState::WALK;
+            else state = PedestrianState::RUN;
 
-        states.push_back(state);
+            states.push_back(state);
+        }
+        else {
+            states.push_back(PedestrianState::UNKNOWN);
+        }
     }
 
     return states;

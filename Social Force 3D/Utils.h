@@ -67,7 +67,11 @@
 
 class Utils {
 public:
-	static float Random(float lower, float upper) {
+	static int RandomInt(int lower, int upper) {
+		return (lower + (rand() * 1.0f / RAND_MAX) * (upper - lower));
+	}
+
+	static float RandomFloat(float lower, float upper) {
 		return (lower + (rand() * 1.0f / RAND_MAX) * (upper - lower));
 	}
 
