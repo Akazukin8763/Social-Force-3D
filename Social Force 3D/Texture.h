@@ -19,4 +19,5 @@ unsigned int TextureFrom_FBX_EmbeddedTexture(const aiTexture* tex, bool gamma = 
 
 unsigned int GenerateTexture(unsigned char* data, int width, int height, int nrComponents, bool gamma = false);
 
+unsigned int loadCubemap(std::vector<std::string> faces);
 #endif

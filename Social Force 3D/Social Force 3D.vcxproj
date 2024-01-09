@@ -201,6 +201,8 @@
     <None Include="Shaders\main.vs" />
     <None Include="Shaders\plane.fs" />
     <None Include="Shaders\plane.vs" />
+    <None Include="skybox.vs" />
+    <None Include="skybox.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

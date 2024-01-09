@@ -64,6 +64,9 @@ bool Application::Setup() {
 void Application::Rendering() {
     m_mainShader = Shader("./Shaders/main.vs", "./Shaders/main.fs");
     m_planeShader = Shader("./Shaders/plane.vs", "./Shaders/plane.fs");
+
+    m_skyboxShader = Shader("./Shaders/skybox.vs", "./Shaders/skybox.fs");
+
     m_shadowMapper.Setup();
 
     m_socialForce = SocialForce(MAX_INSTANCES);
@@ -92,12 +95,40 @@ void Application::Rendering() {
     tempGroundModel.SetAnimation(false);
     tempGroundModel.SetModelMatrix(Matrix4::identity);
     tempGroundModel.SetShadow(true);
-    tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(50, 0.1, 50)) });
+    tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(100, 0.1, 100)) });
 
-    m_plane = Plane(50);
+    m_plane = Plane(100);
 
     glm::mat4 projection, view, model;
-    std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel };
+    //std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel };
+
+    std::vector<Model*> ptr_models{ &m_pedestrianModel, &tempGroundModel };
+
+    // skybox VAO
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    // load textures
+    // -------------
+    std::vector<std::string> faces
+    {
+        "./Models/skybox/right.jpg",
+        "./Models/skybox/left.jpg",
+        "./Models/skybox/top.jpg",
+        "./Models/skybox/bottom.jpg",
+        "./Models/skybox/front.jpg",
+        "./Models/skybox/back.jpg"
+    };
+    unsigned int cubemapTexture = loadCubemap(faces);
+
+    m_skyboxShader.Activate();
+    m_skyboxShader.SetInt("skybox", 0);
 
     // Main Loop
     while (!glfwWindowShouldClose(m_window)) {
@@ -206,6 +237,24 @@ void Application::Rendering() {
 
         m_plane.Render(m_planeShader); // Render
 
+         /*
+         *  draw skybox as last
+         */ 
+        //glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        //m_skyboxShader.Activate();
+        //view = glm::mat4(glm::mat3(m_camera.GetViewMatrix())); // remove translation from the view matrix
+        //m_skyboxShader.SetMat4("view", view);
+        //m_skyboxShader.SetMat4("projection", projection);
+        //// skybox cube
+        //glBindVertexArray(skyboxVAO);
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        //glBindVertexArray(0);
+        //glDepthFunc(GL_LESS); // set depth function back to default
+
+
+
         /*
          *  ImGui Settings
          */
@@ -283,3 +332,4 @@ void Application::Execute() {
 
     ClearResource();
 }
+

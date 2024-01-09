@@ -83,8 +83,8 @@ Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
 }
 
 void SocialForce::GenerateBorder() {
-    float halfedge = 25.0f;
-    float roadWidth = 12.0f;
+    float halfedge = 50.0f;     //25
+    float roadWidth = 24.0f;    //12
     float roadOffset= roadWidth / 2;
 
     // Create borders
