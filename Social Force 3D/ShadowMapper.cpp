@@ -70,8 +70,8 @@ void ShadowMapper::RenderDirectionLightShadowMap(glm::vec3 direction, std::vecto
 		float near = m_nearPlane;
 		float far = m_farPlane;
 
-		glm::vec3 lightPosition = -direction * 10.0f;
-		glm::mat4 lightProjection = glm::ortho(-20.0f, 20.0f, -10.0f, 10.0f, near, far);
+		glm::vec3 lightPosition = -direction * 100.0f;
+		glm::mat4 lightProjection = glm::ortho(-200.0f, 200.0f, -100.0f, 100.0f, near, far);
 		glm::mat4 lightView = glm::lookAt(lightPosition, Vector3::zero, Vector3::up);
 		DirectionLghtSpaceMatrices[i] = lightProjection * lightView;
 

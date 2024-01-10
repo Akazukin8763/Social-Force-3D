@@ -96,35 +96,16 @@ void Application::Rendering() {
 	tempGroundModel.SetModelMatrix(Matrix4::identity);
 	tempGroundModel.SetShadow(true);
 
-
 	// House
-	Model tempHouseModel1 = Model("./Models/house/building.obj");
-	tempHouseModel1.SetAnimation(false);
-	tempHouseModel1.SetModelMatrix(Matrix4::identity);
-	tempHouseModel1.SetShadow(true);
-
-	/*Model tempHouseModel2 = Model("./Models/house/building.obj");
-	tempHouseModel2.SetAnimation(false);
-	tempHouseModel2.SetModelMatrix(Matrix4::identity);
-	tempHouseModel2.SetShadow(true);
-
-	Model tempHouseModel3 = Model("./Models/house/building.obj");
-	tempHouseModel3.SetAnimation(false);
-	tempHouseModel3.SetModelMatrix(Matrix4::identity);
-	tempHouseModel3.SetShadow(true);
-
-	Model tempHouseModel4 = Model("./Models/house/building.obj");
-	tempHouseModel4.SetAnimation(false);
-	tempHouseModel4.SetModelMatrix(Matrix4::identity);
-	tempHouseModel4.SetShadow(true);*/
-
+	Model tempHouseModel = Model("./Models/house/building.obj");
+	tempHouseModel.SetAnimation(false);
+	tempHouseModel.SetModelMatrix(Matrix4::identity);
+	tempHouseModel.SetShadow(true);
 
 	m_plane = Plane(100);
 
 	glm::mat4 projection, view, model;
-	std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel, &tempHouseModel1 };
-
-	//std::vector<Model*> ptr_models{ &m_pedestrianModel, &tempGroundModel, &tempHouseModel1, &tempHouseModel2, &tempHouseModel3, &tempHouseModel4 };
+	std::vector<Model*> ptr_models { &m_pedestrianModel, &tempGroundModel, &tempHouseModel };
 
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
@@ -251,27 +232,49 @@ void Application::Rendering() {
 		yFactor = 5.7f / 10.f * halfGroundSize;
 		zFactor = 5.7f / 10.f * halfGroundSize;
 
-		// 更新地面和建築物
-		tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(halfGroundSize, 0.1, halfGroundSize)) });
-		
-		glm::mat4 transforms1 = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		glm::mat4 transforms2 = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		glm::mat4 transforms3 = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize * 40 / 70), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		glm::mat4 transforms4 = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize * 40 / 70), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
+		/*
+		 *  更新地面和建築物
+		 */ 
+		int chunk = 5;
 
-		tempHouseModel1.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms1, transforms2, transforms3, transforms4 });
+		// Ground
+		std::vector<glm::mat4> groundTransforms = std::vector<glm::mat4>(chunk * chunk);
 
-		/*glm::mat4 transforms = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		tempHouseModel1.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
+		glm::mat4 groundTransform = glm::scale(Matrix4::identity, glm::vec3(halfGroundSize, 0.05f, halfGroundSize));
 
-		transforms = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		tempHouseModel2.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
+		for (int i = 0; i < chunk * chunk; i++)
+			groundTransforms[i] = glm::translate(
+				Matrix4::identity, 
+				glm::vec3(halfGroundSize * 2 * (i % chunk - chunk / 2), 
+						 0.05f, 
+						 halfGroundSize * 2 * (i / chunk - chunk / 2))
+			) * groundTransform;
+		tempGroundModel.UpdateInstanceTransforms(groundTransforms);
 
-		transforms = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize * 40 / 70), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		tempHouseModel3.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
+		// Building
+		std::vector<glm::mat4> buildingTransforms = std::vector<glm::mat4>(chunk * chunk * 4);
+		glm::mat4 buildingScale = glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
 
-		transforms = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize* 40/ 70), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		tempHouseModel4.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });*/
+		glm::mat4 buildingTransforms1 = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, (halfGroundSize - z * zFactor)));
+		glm::mat4 buildingTransforms2 = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, -(halfGroundSize - z * zFactor)));
+		glm::mat4 buildingTransforms3 = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize * 40 / 70), 0 - y * yFactor, (halfGroundSize - z * zFactor)));
+		glm::mat4 buildingTransforms4 = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize * 40 / 70), 0 - y * yFactor, -(halfGroundSize - z * zFactor)));
+
+		for (int i = 0; i < chunk * chunk; i++) {
+			glm::mat4 offset = glm::translate(
+				Matrix4::identity, 
+				glm::vec3(halfGroundSize * 2 * (i % chunk - chunk / 2), 
+						  0.05f, 
+						  halfGroundSize * 2 * (i / chunk - chunk / 2))
+			);
+
+			buildingTransforms[i * 4] = buildingTransforms1 * offset * buildingScale;
+			buildingTransforms[i * 4 + 1] = buildingTransforms2 * offset * buildingScale;
+			buildingTransforms[i * 4 + 2] = buildingTransforms3 * offset * buildingScale;
+			buildingTransforms[i * 4 + 3] = buildingTransforms4 * offset * buildingScale;
+		}
+
+		tempHouseModel.UpdateInstanceTransforms(buildingTransforms);
 
 		// Render	
 		for (Model* model : ptr_models) {
