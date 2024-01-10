@@ -12,7 +12,7 @@
 
 #define BACKGROUND_COLOR 49.0f/255.0f, 51.0f/255.0f, 56.0f/255.0f, 1.0f
 
-#define MAX_INSTANCES 40
+#define MAX_INSTANCES 100
 #define MAX_BONES 100
 #define MAX_BONE_INFLUENCE 4
 
