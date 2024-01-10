@@ -108,6 +108,9 @@
     <ClInclude Include="PedestrianAnimator.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="HouseParameter.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -193,10 +196,10 @@
     <None Include="Shaders\plane.vs">
       <Filter>資源檔\Shaders</Filter>
     </None>
-    <None Include="skybox.vs">
+    <None Include="Shaders\skybox.fs">
       <Filter>資源檔\Shaders</Filter>
     </None>
-    <None Include="skybox.fs">
+    <None Include="Shaders\skybox.vs">
       <Filter>資源檔\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -150,6 +150,7 @@
     <ClInclude Include="Border.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Checkpoint.h" />
+    <ClInclude Include="HouseParameter.h" />
     <ClInclude Include="Libraries\imgui\imconfig.h" />
     <ClInclude Include="Libraries\imgui\imgui.h" />
     <ClInclude Include="Libraries\imgui\imgui_impl_glfw.h" />
@@ -201,8 +202,8 @@
     <None Include="Shaders\main.vs" />
     <None Include="Shaders\plane.fs" />
     <None Include="Shaders\plane.vs" />
-    <None Include="skybox.vs" />
-    <None Include="skybox.fs" />
+    <None Include="Shaders\skybox.fs" />
+    <None Include="Shaders\skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
