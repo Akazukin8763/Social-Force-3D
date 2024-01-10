@@ -25,10 +25,11 @@ public:
     std::vector<Vertex>       m_vertices;
     std::vector<unsigned int> m_indices;
     std::vector<Texture>      m_textures;
+    Material                  m_material;
 
     // Constructor
     Mesh() = default;
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material);
 
     // Render the mesh
     void Render(Shader &shader);

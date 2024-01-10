@@ -105,6 +105,15 @@ Mesh Model::ProcessMesh(aiMesh *mesh, const aiScene *scene) {
 	// Materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+	Material mat;
+	aiColor3D color;
+	material->Get(AI_MATKEY_COLOR_AMBIENT, color);
+	mat.Ka = glm::vec4(color.r, color.g, color.b, 1.0f);
+	material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+	mat.Kd = glm::vec4(color.r, color.g, color.b, 1.0f);
+	material->Get(AI_MATKEY_COLOR_SPECULAR, color);
+	mat.Ks = glm::vec4(color.r, color.g, color.b, 1.0f);
+
 	// 1. ambient maps
 	std::vector<Texture> ambientMaps = LoadMaterialTextures(material, aiTextureType_AMBIENT, "textures.ambient", scene);
 	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
@@ -124,7 +133,7 @@ Mesh Model::ProcessMesh(aiMesh *mesh, const aiScene *scene) {
 	ExtractBoneWeightForVertices(vertices, mesh, scene);
 
 	// Return a mesh object created from the extracted mesh data
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures, mat);
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene* scene) {

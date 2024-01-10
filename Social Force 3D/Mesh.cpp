@@ -1,9 +1,10 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, Material material) {
     m_vertices = vertices;
     m_indices = indices;
     m_textures = textures;
+    m_material = material;
 
     Setup();
 }
@@ -78,9 +79,9 @@ void Mesh::Render(Shader &shader) {
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id); // and finally bind the texture
     }
 
-    shader.SetVec3("material.ambient", Vector3::ones);
-    shader.SetVec3("material.diffuse", Vector3::ones);
-    shader.SetVec3("material.specular", Vector3::ones);
+    shader.SetVec3("material.ambient", m_material.Ka);
+    shader.SetVec3("material.diffuse", m_material.Kd);
+    shader.SetVec3("material.specular", m_material.Ks);
     shader.SetFloat("material.shininess", 1);
 
     // Activate shadow map
