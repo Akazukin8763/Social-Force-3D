@@ -1,5 +1,5 @@
-#include "Application.h"
-
+Ôªø#include "Application.h"
+#include "HouseParameter.h"
 Application::Application(const int width, const int height) {
 	m_window = nullptr;
 
@@ -90,15 +90,7 @@ void Application::Rendering() {
 	m_borderModel.SetModelMatrix(glm::translate(Matrix4::identity, Vector3::up * 0.5f));
 	m_borderModel.SetShadow(true);
 
-	float halfGroundSize = 30;
-	// ´ÿøv™´º“´¨™∫pivot¶Ï∏m
-	float x = 0;
-	float y = -0.5f;
-	float z = 0.5f;
-	// ¡Y©Ò§Ò®“
-	float xFactor = 5.7f / 10.f * halfGroundSize;
-	float yFactor = 5.7f / 10.f * halfGroundSize;
-	float zFactor = 5.7f / 10.f * halfGroundSize;
+	
 
 	// Ground
 	Model tempGroundModel = Model("./Models/cube/road.obj");
@@ -108,7 +100,7 @@ void Application::Rendering() {
 
 
 	// House
-	Model tempHouseModel1 = Model("./Models/house/building.obj");
+	/*Model tempHouseModel1 = Model("./Models/house/building.obj");
 	tempHouseModel1.SetAnimation(false);
 	tempHouseModel1.SetModelMatrix(Matrix4::identity);
 	tempHouseModel1.SetShadow(true);
@@ -126,15 +118,15 @@ void Application::Rendering() {
 	Model tempHouseModel4 = Model("./Models/house/building.obj");
 	tempHouseModel4.SetAnimation(false);
 	tempHouseModel4.SetModelMatrix(Matrix4::identity);
-	tempHouseModel4.SetShadow(true);
+	tempHouseModel4.SetShadow(true);*/
 
 
 	m_plane = Plane(100);
 
 	glm::mat4 projection, view, model;
-	//std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel , &tempHouseModel1 };
+	std::vector<Model*> ptr_models { &m_pedestrianModel, &m_borderModel, &tempGroundModel };
 
-	std::vector<Model*> ptr_models{ &m_pedestrianModel, &tempGroundModel, &tempHouseModel1, &tempHouseModel2, &tempHouseModel3, &tempHouseModel4 };
+	//std::vector<Model*> ptr_models{ &m_pedestrianModel, &tempGroundModel, &tempHouseModel1, &tempHouseModel2, &tempHouseModel3, &tempHouseModel4 };
 
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
@@ -162,6 +154,8 @@ void Application::Rendering() {
 	m_skyboxShader.Activate();
 	m_skyboxShader.SetInt("skybox", 0);
 
+	int socialForceType = CIRCULAR_SPECIFICATION;
+
 	// Main Loop
 	while (!glfwWindowShouldClose(m_window)) {
 		glClearColor(BACKGROUND_COLOR);
@@ -186,6 +180,8 @@ void Application::Rendering() {
 
 		if (m_simulateFlag) {
 			// Simulate social force
+			m_socialForce.SetPedestrianRepulsiveForceType(socialForceType);
+
 			m_socialForce.Simulate(m_deltaTime);
 
 			animators.UpdateStates(m_socialForce.GetPedestrianInstanceStates());
@@ -257,10 +253,10 @@ void Application::Rendering() {
 		yFactor = 5.7f / 10.f * halfGroundSize;
 		zFactor = 5.7f / 10.f * halfGroundSize;
 
-		// ßÛ∑s¶a≠±©M´ÿøv™´
+		// Êõ¥Êñ∞Âú∞Èù¢ÂíåÂª∫ÁØâÁâ©
 		tempGroundModel.UpdateInstanceTransforms(std::vector<glm::mat4> { glm::scale(Matrix4::identity, glm::vec3(halfGroundSize, 0.1, halfGroundSize)) });
 
-		glm::mat4 transforms = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
+		/*glm::mat4 transforms = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, (halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
 		tempHouseModel1.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
 
 		transforms = glm::translate(Matrix4::identity, glm::vec3((halfGroundSize - x * xFactor), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
@@ -270,7 +266,7 @@ void Application::Rendering() {
 		tempHouseModel3.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
 
 		transforms = glm::translate(Matrix4::identity, glm::vec3(-(halfGroundSize - x * xFactor - halfGroundSize* 40/ 70), 0 - y * yFactor, -(halfGroundSize - z * zFactor))) * glm::scale(Matrix4::identity, glm::vec3(xFactor, yFactor, zFactor));
-		tempHouseModel4.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });
+		tempHouseModel4.UpdateInstanceTransforms(std::vector<glm::mat4> { transforms });*/
 
 		// Render	
 		for (Model* model : ptr_models) {
@@ -353,6 +349,13 @@ void Application::Rendering() {
 				m_socialForce.UpdatePedestrianNums(m_pedestrianNums);
 			}
 
+			ImGui::RadioButton("CIRCULAR_SPECIFICATION", &socialForceType, CIRCULAR_SPECIFICATION);
+			ImGui::RadioButton("ELLIPTICAL_SPECIFICATION_I", &socialForceType, ELLIPTICAL_SPECIFICATION_I);
+			ImGui::RadioButton("ELLIPTICAL_SPECIFICATION_II", &socialForceType, ELLIPTICAL_SPECIFICATION_II);
+			ImGui::RadioButton("NEW_ELLIPTICAL_SPECIFICTION", &socialForceType, NEW_ELLIPTICAL_SPECIFICTION);
+
+			ImGui::Separator();
+			
 			ImGui::SliderFloat("houseX", &x, -5, 5);
 			ImGui::SliderFloat("houseY", &y, -5, 5);
 			ImGui::SliderFloat("houseZ", &z, -5, 5);

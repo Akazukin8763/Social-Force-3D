@@ -1,4 +1,4 @@
-#ifndef __BORDER_H__
+﻿#ifndef __BORDER_H__
 #define __BORDER_H__
 
 #include <glm/glm.hpp>

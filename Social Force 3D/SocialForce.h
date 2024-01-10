@@ -1,4 +1,4 @@
-#ifndef __SOCIAL_FORCE_H__
+﻿#ifndef __SOCIAL_FORCE_H__
 #define __SOCIAL_FORCE_H__
 
 #include <glm/glm.hpp>

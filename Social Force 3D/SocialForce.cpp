@@ -1,5 +1,5 @@
-#include "SocialForce.h"
-
+﻿#include "SocialForce.h"
+#include "HouseParameter.h"
 SocialForce::SocialForce(int maxPedestrians) {
     m_currentPedestrians = maxPedestrians;
     m_maxPedestrians = maxPedestrians;
@@ -27,6 +27,8 @@ void SocialForce::GeneratePedestrian() {
 
     for (int i = 0; i < m_maxPedestrians; i++)
         m_pedestrians.push_back(GeneraePedestrianByType(i % 4));
+
+
 }
 
 Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
@@ -58,6 +60,8 @@ Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
     }
 
     int random;
+
+
     do {
         random = Utils::RandomInt(0, 4);
     } while (random == type);
@@ -83,9 +87,12 @@ Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
 }
 
 void SocialForce::GenerateBorder() {
-    float halfedge = 50.0f;     //25
-    float roadWidth = 24.0f;    //12
-    float roadOffset= roadWidth / 2;
+    float halfedge = 70.0f * halfGroundSize / 70.0f;     //25
+    float roadWidth1 = 60.0f * halfGroundSize / 70.0f;    //12
+    float roadOffset1= roadWidth1 / 2;
+
+    float roadWidth2 = 40.0f * halfGroundSize / 70.0f;    //12
+    float roadOffset2 = roadWidth2 / 2;
 
     // Create borders
     Border* border;
@@ -101,24 +108,45 @@ void SocialForce::GenerateBorder() {
     m_borders.push_back(border);
 
     // Intersection
-    border = new Border(glm::vec3(-roadOffset, 0.0f, -halfedge), glm::vec3(-roadOffset, 0.0f, -roadOffset));
+    border = new Border(glm::vec3(-roadOffset1, 0.0f, -halfedge), glm::vec3(-roadOffset1, 0.0f, -roadOffset1));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(-halfedge, 0.0f, -roadOffset), glm::vec3(-roadOffset, 0.0f, -roadOffset));
-    m_borders.push_back(border);
-
-    border = new Border(glm::vec3(roadOffset, 0.0f, -halfedge), glm::vec3(roadOffset, 0.0f, -roadOffset));
-    m_borders.push_back(border);
-    border = new Border(glm::vec3(halfedge, 0.0f, -roadOffset), glm::vec3(roadOffset, 0.0f, -roadOffset));
+    border = new Border(glm::vec3(-halfedge, 0.0f, -roadOffset1), glm::vec3(-roadOffset1, 0.0f, -roadOffset1));
     m_borders.push_back(border);
 
-    border = new Border(glm::vec3(-roadOffset, 0.0f, halfedge), glm::vec3(-roadOffset, 0.0f, roadOffset));
+    border = new Border(glm::vec3(roadOffset1, 0.0f, -halfedge), glm::vec3(roadOffset1, 0.0f, -roadOffset1));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(-halfedge, 0.0f, roadOffset), glm::vec3(-roadOffset, 0.0f, roadOffset));
+    border = new Border(glm::vec3(halfedge, 0.0f, -roadOffset1), glm::vec3(roadOffset1, 0.0f, -roadOffset1));
     m_borders.push_back(border);
 
-    border = new Border(glm::vec3(roadOffset, 0.0f, halfedge), glm::vec3(roadOffset, 0.0f, roadOffset));
+    border = new Border(glm::vec3(-roadOffset1, 0.0f, halfedge), glm::vec3(-roadOffset1, 0.0f, roadOffset1));
     m_borders.push_back(border);
-    border = new Border(glm::vec3(halfedge, 0.0f, roadOffset), glm::vec3(roadOffset, 0.0f, roadOffset));
+    border = new Border(glm::vec3(-halfedge, 0.0f, roadOffset1), glm::vec3(-roadOffset1, 0.0f, roadOffset1));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(roadOffset1, 0.0f, halfedge), glm::vec3(roadOffset1, 0.0f, roadOffset1));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(halfedge, 0.0f, roadOffset1), glm::vec3(roadOffset1, 0.0f, roadOffset1));
+    m_borders.push_back(border);
+
+
+    border = new Border(glm::vec3(-roadOffset2, 0.0f, -halfedge), glm::vec3(-roadOffset2, 0.0f, -roadOffset2));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(-halfedge, 0.0f, -roadOffset2), glm::vec3(-roadOffset2, 0.0f, -roadOffset2));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(roadOffset2, 0.0f, -halfedge), glm::vec3(roadOffset2, 0.0f, -roadOffset2));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(halfedge, 0.0f, -roadOffset2), glm::vec3(roadOffset2, 0.0f, -roadOffset2));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(-roadOffset2, 0.0f, halfedge), glm::vec3(-roadOffset2, 0.0f, roadOffset2));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(-halfedge, 0.0f, roadOffset2), glm::vec3(-roadOffset2, 0.0f, roadOffset2));
+    m_borders.push_back(border);
+
+    border = new Border(glm::vec3(roadOffset2, 0.0f, halfedge), glm::vec3(roadOffset2, 0.0f, roadOffset2));
+    m_borders.push_back(border);
+    border = new Border(glm::vec3(halfedge, 0.0f, roadOffset2), glm::vec3(roadOffset2, 0.0f, roadOffset2));
     m_borders.push_back(border);
 }
 
