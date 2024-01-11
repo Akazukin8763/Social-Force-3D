@@ -42,8 +42,8 @@ Pedestrian* SocialForce::GeneraePedestrianByType(int type) {
 
 	float halfedge = halfGroundSize;
 	float start = halfedge - 5.0f * halfGroundSize / 70;
-	float mid = 25.0f * halfGroundSize / 70.0f;
-	float range = 5.0f * halfGroundSize / 70.0f;
+	float mid = 22.5f * halfGroundSize / 70.0f;
+	float range = 2.5f * halfGroundSize / 70.0f;
 
 	Pedestrian* pedestrian;
 

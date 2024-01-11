@@ -28,7 +28,7 @@ private:
 	ShadowMapper m_shadowMapper;
 
 	int m_screenWidth, m_screenHeight;
-	const unsigned int m_shadowMapWidth = 1024, m_shadowMapHeight = 1024;
+	const unsigned int m_shadowMapWidth = 2048, m_shadowMapHeight = 2048;
 
 	float m_currentTime, m_lastTime, m_deltaTime;
 	float m_smoothedFPS = 0.0f, m_smoothingFactor = 0.005f;
