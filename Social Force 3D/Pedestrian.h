@@ -9,6 +9,7 @@
 #include "Checkpoint.h"
 #include "Border.h"
 #include "Utils.h"
+#include "SocialForceParameter.h"
 
 #include <vector>
 #include <queue>

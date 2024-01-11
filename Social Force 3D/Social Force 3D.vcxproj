@@ -168,6 +168,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShadowMapper.h" />
     <ClInclude Include="SocialForce.h" />
+    <ClInclude Include="SocialForceParameter.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vertex.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="ShadowMapper.cpp" />
     <ClCompile Include="SocialForce.cpp" />
+    <ClCompile Include="SocialForceParameter.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>

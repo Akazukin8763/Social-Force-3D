@@ -20,6 +20,9 @@
 #include "Plane.h"
 #include "Utils.h"
 
+#include "HouseParameter.h"
+#include "SocialForceParameter.h"
+
 class Application {
 private:
 	GLFWwindow* m_window;

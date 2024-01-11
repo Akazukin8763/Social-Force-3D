@@ -1,5 +1,6 @@
 ﻿#include "Application.h"
-#include "HouseParameter.h"
+
+
 Application::Application(const int width, const int height) {
 	m_window = nullptr;
 
@@ -361,17 +362,79 @@ void Application::Rendering() {
 			ImGui::RadioButton("ELLIPTICAL_SPECIFICATION_I", &socialForceType, ELLIPTICAL_SPECIFICATION_I);
 			ImGui::RadioButton("ELLIPTICAL_SPECIFICATION_II", &socialForceType, ELLIPTICAL_SPECIFICATION_II);
 			ImGui::RadioButton("NEW_ELLIPTICAL_SPECIFICTION", &socialForceType, NEW_ELLIPTICAL_SPECIFICTION);
-
 			ImGui::Separator();
-			
-			ImGui::SliderFloat("houseX", &x, -5, 5);
-			ImGui::SliderFloat("houseY", &y, -5, 5);
-			ImGui::SliderFloat("houseZ", &z, -5, 5);
-			ImGui::SliderFloat("houseXScale", &xFactor, -100, 100);
-			ImGui::SliderFloat("houseYScale", &yFactor, -100, 100);
-			ImGui::SliderFloat("houseZScale", &zFactor, -100, 100);
 
-			ImGui::SliderFloat("groundScale", &halfGroundSize, -50, 50);
+			if (ImGui::Button("Reset")) {
+				SFMGlobal::ca_k = CA_K;
+				SFMGlobal::ca_kappa = CA_KAPPA;
+
+				SFMGlobal::cs_a = CS_A;
+				SFMGlobal::cs_b = CS_B;
+				SFMGlobal::cs_lambda = CS_LAMBDA;
+
+				SFMGlobal::es1_tau = ES1_TAU;
+				SFMGlobal::es1_a = ES1_A;
+				SFMGlobal::es1_b = ES1_B;
+				SFMGlobal::es1_lambda = ES1_LAMBDA;
+
+				SFMGlobal::es2_tau = ES2_TAU;
+				SFMGlobal::es2_a = ES2_A;
+				SFMGlobal::es2_b = ES2_B;
+				SFMGlobal::es2_lambda = ES2_LAMBDA;
+
+				SFMGlobal::nes_tau;
+				SFMGlobal::nes_a = NES_A;
+				SFMGlobal::nes_b = NES_B;
+				SFMGlobal::nes_lambda = NES_LAMBDA;
+
+				SFMGlobal::br_a = BR_A;
+				SFMGlobal::br_b = BR_B;
+			}
+
+			switch (socialForceType) {
+			case CIRCULAR_SPECIFICATION:
+				ImGui::Text("CIRCULAR_SPECIFICATION");
+				ImGui::SliderFloat("cs_a", &SFMGlobal::cs_a, CS_A / 100.f, CS_A * 10000.f);
+				ImGui::SliderFloat("cs_b", &SFMGlobal::cs_b, CS_B / 100.f, CS_B * 10000.f);
+				ImGui::SliderFloat("cs_lambda", &SFMGlobal::cs_lambda, CS_LAMBDA / 100.f, CS_LAMBDA * 10000.f);
+				break;
+			case ELLIPTICAL_SPECIFICATION_I:
+				ImGui::Text("ELLIPTICAL_SPECIFICATION_I");
+				ImGui::SliderFloat("es1_tau", &SFMGlobal::es1_tau, ES1_TAU / 100.f, ES1_TAU * 10000.f);
+				ImGui::SliderFloat("es1_a", &SFMGlobal::es1_a, ES1_A / 100.f, ES1_A * 10000.f);
+				ImGui::SliderFloat("es1_b", &SFMGlobal::es1_b, ES1_B / 100.f, ES1_B * 10000.f);
+				ImGui::SliderFloat("es1_lambda", &SFMGlobal::es1_lambda, ES1_LAMBDA / 100.f, ES1_LAMBDA * 10000.f);
+				break;
+			case ELLIPTICAL_SPECIFICATION_II:
+				ImGui::Text("ELLIPTICAL_SPECIFICATION_II");
+				ImGui::SliderFloat("es2_tau", &SFMGlobal::es2_tau, ES2_TAU / 100.f, ES2_TAU * 10000.f);
+				ImGui::SliderFloat("es2_a", &SFMGlobal::es2_a, ES2_A / 100.f, ES2_A * 10000.f);
+				ImGui::SliderFloat("es2_b", &SFMGlobal::es2_b, ES2_B / 100.f, ES2_B * 10000.f);
+				ImGui::SliderFloat("es2_lambda", &SFMGlobal::es2_lambda, ES2_LAMBDA / 100.f, ES2_LAMBDA * 10000.f);
+				break;
+			case NEW_ELLIPTICAL_SPECIFICTION:
+				ImGui::Text("NEW_ELLIPTICAL_SPECIFICTION");
+				ImGui::SliderFloat("nes_tau", &SFMGlobal::nes_tau, NES_TAU / 100.f, NES_TAU * 10000.f);
+				ImGui::SliderFloat("nes_a", &SFMGlobal::nes_a, NES_A / 100.f, NES_A * 10000.f);
+				ImGui::SliderFloat("nes_b", &SFMGlobal::nes_b, NES_B / 100.f, NES_B * 10000.f);
+				ImGui::SliderFloat("nes_lambda", &SFMGlobal::nes_lambda, NES_LAMBDA / 100.f, NES_LAMBDA * 10000.f);
+				break;
+			default:
+				break;
+			}
+			ImGui::Separator();
+			ImGui::Text("Border");
+			ImGui::SliderFloat("br_a", &SFMGlobal::br_a, BR_A / 100.f, BR_A * 10.f);
+			ImGui::SliderFloat("br_b", &SFMGlobal::br_b, BR_B / 100.f, BR_B * 100.f);
+			//ImGui::Separator();
+			//ImGui::SliderFloat("houseX", &x, -5, 5);
+			//ImGui::SliderFloat("houseY", &y, -5, 5);
+			//ImGui::SliderFloat("houseZ", &z, -5, 5);
+			//ImGui::SliderFloat("houseXScale", &xFactor, -100, 100);
+			//ImGui::SliderFloat("houseYScale", &yFactor, -100, 100);
+			//ImGui::SliderFloat("houseZScale", &zFactor, -100, 100);
+
+			//ImGui::SliderFloat("groundScale", &halfGroundSize, -50, 50);
 
 			ImGui::End();
 		}

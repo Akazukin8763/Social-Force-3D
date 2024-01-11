@@ -46,8 +46,8 @@ glm::vec3 Pedestrian::GetDesiredDirection() {
 glm::vec3 Pedestrian::GetCollisionAvoidForce(Pedestrian* opponent) {
     //const float A = CA_A;
     //const float B = CA_B;
-    const float K = CA_K;
-    const float KAPPA = CA_KAPPA;
+    float K = SFMGlobal::ca_k;
+    float KAPPA = SFMGlobal::ca_kappa;
 
     // Assign values
     float r_ij = m_radius + opponent->m_radius;
@@ -80,7 +80,7 @@ glm::vec3 Pedestrian::GetCollisionAvoidForce(Pedestrian* opponent) {
 }
 
 glm::vec3 Pedestrian::GetDrivingForce() {
-    const float k = 1 / RELAXATION_TIME;
+    float k = 1 / RELAXATION_TIME;
 
     // Compute desired direction
     glm::vec3 e_i = GetDesiredDirection();
@@ -99,9 +99,9 @@ glm::vec3 Pedestrian::GetDrivingForce() {
 glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithCS(std::vector<Pedestrian*> others) {
     glm::vec3 force = glm::vec3(0.0f);
 
-    const float A = CS_A;
-    const float B = CS_B;
-    const float LAMBDA = CS_LAMBDA;
+    float A = SFMGlobal::cs_a;
+    float B = SFMGlobal::cs_b;
+    float LAMBDA = SFMGlobal::cs_lambda;
 
     glm::vec3 e_i = GetDesiredDirection();
 
@@ -150,10 +150,10 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithCS(std::vector<Pedestrian*>
 glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES1(std::vector<Pedestrian*> others) {
     glm::vec3 force = glm::vec3(0.0f);
 
-    const float TAU = ES1_TAU;
-    const float A = ES1_A;
-    const float B = ES1_B;
-    const float LAMBDA = ES1_LAMBDA;
+    float TAU = SFMGlobal::es1_tau;
+    float A = SFMGlobal::es1_a;
+    float B = SFMGlobal::es1_b;
+    float LAMBDA = SFMGlobal::es1_lambda;
 
     glm::vec3 e_i = GetDesiredDirection();
 
@@ -244,10 +244,10 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES1(std::vector<Pedestrian*
 glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES2(std::vector<Pedestrian*> others) {
     glm::vec3 force = glm::vec3(0.0f);
 
-    const float TAU = ES2_TAU;
-    const float A = ES2_A;
-    const float B = ES2_B;
-    const float LAMBDA = ES2_LAMBDA;
+    float TAU = SFMGlobal::es2_tau;
+    float A = SFMGlobal::es2_a;
+    float B = SFMGlobal::es2_b;
+    float LAMBDA = SFMGlobal::es2_lambda;
 
     glm::vec3 e_i = GetDesiredDirection();
 
@@ -317,10 +317,10 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithES2(std::vector<Pedestrian*
 glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithNES(std::vector<Pedestrian*> others) {
     glm::vec3 force = glm::vec3(0.0f);
 
-    const float TAU = NES_TAU;
-    const float A = NES_A;
-    const float B = NES_B;
-    const float LAMBDA = NES_LAMBDA;
+    float TAU = SFMGlobal::nes_tau;
+    float A = SFMGlobal::nes_a;
+    float B = SFMGlobal::nes_b;
+    float LAMBDA = SFMGlobal::nes_lambda;
 
     glm::vec3 e_i = GetDesiredDirection();
 
@@ -391,8 +391,8 @@ glm::vec3 Pedestrian::GetPedestrianRepulsiveForceWithNES(std::vector<Pedestrian*
 glm::vec3 Pedestrian::GetBorderRepulsiveForce(std::vector<Border*> borders, float dt) {
     glm::vec3 force = glm::vec3(0.0f);
 
-    const float A = BR_A;
-    const float B = BR_B;
+    float A = SFMGlobal::br_a;
+    float B = SFMGlobal::br_b;
 
     for (Border* border : borders) {
         // Compute the nearest point to border
